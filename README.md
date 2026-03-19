@@ -1,10 +1,11 @@
 # OurWay Frontend
 
-Next.js 14 (App Router) frontend for OurWay — a family task manager with Kanban board and gamification.
+Next.js 16 (App Router) frontend for OurWay — a family task manager with Kanban board and gamification.
 
 ## Tech Stack
 
-- Next.js 14 (App Router)
+- Next.js 16.2 (App Router, Turbopack by default)
+- React 19.2+
 - Tailwind CSS
 - NextAuth.js (Google + credentials)
 - next-intl (uk, en)
