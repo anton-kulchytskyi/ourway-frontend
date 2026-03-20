@@ -8,7 +8,7 @@ export default async function InvitePage({
   params: Promise<{ lang: string; token: string }>;
 }) {
   const { lang, token } = await params;
-  const authToken = await getAccessToken();
+  const authToken = (await getAccessToken()) ?? null;
 
   let info = null;
   let error = null;

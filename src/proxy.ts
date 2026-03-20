@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { locales, defaultLocale } from "@/app/[lang]/dictionaries";
 
 const AUTH_ROUTES = ["/login", "/register"];
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register", "/invite"];
 
 function getLocale(request: NextRequest): string {
   const acceptLanguage = request.headers.get("accept-language") ?? "";
