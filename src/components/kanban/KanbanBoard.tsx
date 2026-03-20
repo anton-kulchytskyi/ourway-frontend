@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import type { Task, TaskStatus, Space } from "@/lib/tasks";
-import { STATUSES, updateTaskStatus } from "@/lib/tasks";
+import { STATUSES, updateTaskStatus, fetchTasks } from "@/lib/tasks";
 import KanbanColumn from "./KanbanColumn";
 import TaskCard from "./TaskCard";
 import CreateTaskSheet from "./CreateTaskSheet";
@@ -30,6 +30,33 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedSpace, setSelectedSpace] = useState<number | null>(spaces[0]?.id ?? null);
   const [showCreate, setShowCreate] = useState(false);
+
+  const isDragging = useRef(false);
+
+  const reload = useCallback(async () => {
+    if (isDragging.current) return;
+    try {
+      const fresh = await fetchTasks(token);
+      setTasks(fresh);
+    } catch {}
+  }, [token]);
+
+  // Refetch when tab becomes visible
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") reload();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [reload]);
+
+  // Poll every 30s (only when tab is visible)
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") reload();
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [reload]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -60,6 +87,7 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active } = event;
+    isDragging.current = false;
     setActiveTask(null);
     const taskId = active.id as number;
     const task = tasks.find((t) => t.id === taskId);
@@ -67,9 +95,9 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
     try {
       await updateTaskStatus(token, taskId, task.status);
     } catch {
-      setTasks(initialTasks);
+      reload();
     }
-  }, [tasks, token, initialTasks]);
+  }, [tasks, token, reload]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -116,7 +144,10 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
-          onDragStart={(e) => setActiveTask(tasks.find((t) => t.id === e.active.id) ?? null)}
+          onDragStart={(e) => {
+            isDragging.current = true;
+            setActiveTask(tasks.find((t) => t.id === e.active.id) ?? null);
+          }}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
