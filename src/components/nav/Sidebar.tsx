@@ -7,15 +7,6 @@ type Props = { lang: string; userName: string; userRole: string; logoutAction: (
 
 const navItems = (lang: string, userRole: string) => [
   {
-    href: `/${lang}`,
-    label: "Home",
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6" />
-      </svg>
-    ),
-  },
-  {
     href: `/${lang}/spaces`,
     label: "Spaces",
     icon: (

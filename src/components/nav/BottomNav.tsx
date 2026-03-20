@@ -56,9 +56,8 @@ export default function BottomNav({ lang, userRole }: Props) {
   const pathname = usePathname();
 
   const items: NavItem[] = [
-    { href: `/${lang}`, label: "Home", icon: <HomeIcon /> },
-    { href: `/${lang}/spaces`, label: "Spaces", icon: <SpacesIcon /> },
     { href: `/${lang}/tasks`, label: "Tasks", icon: <TasksIcon /> },
+    { href: `/${lang}/spaces`, label: "Spaces", icon: <SpacesIcon /> },
     ...(userRole === "owner" ? [{ href: `/${lang}/family`, label: "Family", icon: <FamilyIcon /> }] : []),
     { href: `/${lang}/settings`, label: "Settings", icon: <SettingsIcon /> },
   ];
