@@ -162,9 +162,9 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
       {/* Create sheet */}
       {showCreate && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCreate(false)} />
+          <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCreate(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
+          <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
             <div className="overflow-y-auto px-5 pb-6 pt-5">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold">New Space</h2>
@@ -253,9 +253,9 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
       {/* Invite modal */}
       {inviteSpace && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={closeInvite} />
+          <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={closeInvite} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-            <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl pointer-events-auto">
+            <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl pointer-events-auto">
               <div className="px-5 pb-6 pt-5">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg font-bold">

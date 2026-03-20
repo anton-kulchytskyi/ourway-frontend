@@ -22,3 +22,49 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* Cursor pointer on all interactive elements */
+button,
+[role="button"],
+select,
+label[for] {
+  cursor: pointer;
+}
+
+/* Modal animations */
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-backdrop {
+  animation: modal-backdrop-in 0.15s ease-out;
+}
+
+.modal-content {
+  animation: modal-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Page transitions via View Transitions API */
+::view-transition-old(root) {
+  animation: 180ms ease-in both fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 220ms ease-out both fade-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

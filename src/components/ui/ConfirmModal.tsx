@@ -21,9 +21,9 @@ export default function ConfirmModal({
 }: Props) {
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
+      <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl p-6 pointer-events-auto">
+        <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl p-6 pointer-events-auto">
           <h3 className="text-base font-bold mb-2">{title}</h3>
           <p className="text-sm text-stone-500 dark:text-stone-400 mb-6">{message}</p>
           <div className="flex gap-3">

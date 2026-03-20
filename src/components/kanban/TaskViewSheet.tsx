@@ -68,10 +68,10 @@ export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose 
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose} />
+      <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose} />
 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
+        <div className="modal-content w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
           <div className="overflow-y-auto px-5 pb-6 pt-5">
             <div className="flex items-start justify-between gap-3 mb-4">
               <h2 className="text-lg font-bold leading-snug flex-1">{task.title}</h2>
