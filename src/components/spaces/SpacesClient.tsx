@@ -1,61 +1,82 @@
 "use client";
 
 import { useState } from "react";
-import type { Space } from "@/lib/spaces";
-import { createSpace, deleteSpace } from "@/lib/spaces";
-import { createInvitation, type InvitationRole } from "@/lib/invitations";
+import type { Space, SpaceMember, SpaceMemberRole } from "@/lib/spaces";
+import { createSpace, deleteSpace, fetchSpaceMembers, addSpaceMember, removeSpaceMember } from "@/lib/spaces";
+import type { FamilyMember } from "@/lib/family";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Link from "next/link";
 
 const EMOJIS = ["🏠", "👨‍👩‍👧", "💼", "📚", "🛒", "🌿", "🎯", "⭐", "🚗", "💪"];
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
 
-type Props = { initialSpaces: Space[]; token: string; lang: string };
+type Props = { initialSpaces: Space[]; token: string; lang: string; familyMembers: FamilyMember[]; currentUserId: number };
 
-export default function SpacesClient({ initialSpaces, token, lang }: Props) {
+export default function SpacesClient({ initialSpaces, token, lang, familyMembers, currentUserId }: Props) {
   const [spaces, setSpaces] = useState<Space[]>(initialSpaces);
   const [showCreate, setShowCreate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Space | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [inviteSpace, setInviteSpace] = useState<Space | null>(null);
-  const [inviteRole, setInviteRole] = useState<InvitationRole>("editor");
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
-  const [inviteLoading, setInviteLoading] = useState(false);
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("🏠");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleGenerateInvite() {
-    if (!inviteSpace) return;
-    setInviteLoading(true);
-    setInviteError(null);
-    setInviteLink(null);
+  // Members modal
+  const [membersSpace, setMembersSpace] = useState<Space | null>(null);
+  const [members, setMembers] = useState<SpaceMember[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [addingUserId, setAddingUserId] = useState<number | null>(null);
+  const [removingUserId, setRemovingUserId] = useState<number | null>(null);
+  const [membersError, setMembersError] = useState<string | null>(null);
+
+  async function openMembers(space: Space) {
+    setMembersSpace(space);
+    setMembersError(null);
+    setMembersLoading(true);
     try {
-      const inv = await createInvitation(token, inviteSpace.id, inviteRole);
-      setInviteLink(`${APP_URL}/${lang}/invite/${inv.token}`);
-    } catch (err: unknown) {
-      const e = err as { detail?: string };
-      setInviteError(e.detail ?? "Failed to create invitation");
+      const m = await fetchSpaceMembers(token, space.id);
+      setMembers(m);
+    } catch {
+      setMembersError("Failed to load members");
     } finally {
-      setInviteLoading(false);
+      setMembersLoading(false);
     }
   }
 
-  async function handleCopy() {
-    if (!inviteLink) return;
-    await navigator.clipboard.writeText(inviteLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  function closeMembers() {
+    setMembersSpace(null);
+    setMembers([]);
+    setMembersError(null);
   }
 
-  function closeInvite() {
-    setInviteSpace(null);
-    setInviteLink(null);
-    setInviteError(null);
-    setCopied(false);
+  async function handleAddMember(userId: number, role: SpaceMemberRole) {
+    if (!membersSpace) return;
+    setAddingUserId(userId);
+    setMembersError(null);
+    try {
+      const m = await addSpaceMember(token, membersSpace.id, userId, role);
+      setMembers((prev) => [...prev, m]);
+    } catch (err: unknown) {
+      const e = err as { detail?: string };
+      setMembersError(e.detail ?? "Failed to add member");
+    } finally {
+      setAddingUserId(null);
+    }
+  }
+
+  async function handleRemoveMember(userId: number) {
+    if (!membersSpace) return;
+    setRemovingUserId(userId);
+    setMembersError(null);
+    try {
+      await removeSpaceMember(token, membersSpace.id, userId);
+      setMembers((prev) => prev.filter((m) => m.user_id !== userId));
+    } catch (err: unknown) {
+      const e = err as { detail?: string };
+      setMembersError(e.detail ?? "Failed to remove member");
+    } finally {
+      setRemovingUserId(null);
+    }
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -89,6 +110,15 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
     }
   }
 
+  // Family members not yet in the space
+  const nonMembers = membersSpace
+    ? familyMembers.filter(
+        (fm) => fm.id !== currentUserId && !members.some((m) => m.user_id === fm.id)
+      )
+    : [];
+
+  const memberUserIds = new Set(members.map((m) => m.user_id));
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -121,14 +151,19 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
                 className="flex items-center gap-3 flex-1 min-w-0"
               >
                 <span className="text-2xl">{space.emoji ?? "📋"}</span>
-                <span className="font-medium truncate">{space.name}</span>
+                <div className="min-w-0">
+                  <span className="font-medium truncate block">{space.name}</span>
+                  {space.my_role && space.my_role !== "owner" && (
+                    <span className="text-xs text-stone-400 capitalize">{space.my_role}</span>
+                  )}
+                </div>
               </Link>
               {space.my_role === "owner" && (
                 <div className="flex items-center gap-1 ml-3">
                   <button
-                    onClick={() => { setInviteSpace(space); setInviteLink(null); }}
+                    onClick={() => openMembers(space)}
                     className="rounded-lg p-2 text-stone-400 hover:bg-amber-50 hover:text-amber-500 dark:hover:bg-amber-950 transition-colors"
-                    title="Invite to space"
+                    title="Manage members"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -250,83 +285,107 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
         />
       )}
 
-      {/* Invite modal */}
-      {inviteSpace && (
+      {/* Members modal */}
+      {membersSpace && (
         <>
-          <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={closeInvite} />
+          <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={closeMembers} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-            <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl pointer-events-auto">
-              <div className="px-5 pb-6 pt-5">
+            <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
+              <div className="overflow-y-auto px-5 pb-6 pt-5">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg font-bold">
-                    Invite to {inviteSpace.emoji} {inviteSpace.name}
+                    {membersSpace.emoji} {membersSpace.name}
                   </h2>
-                  <button onClick={closeInvite} className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800">
+                  <button onClick={closeMembers} className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800">
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
-                {inviteError && (
-                  <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{inviteError}</p>
+                {membersError && (
+                  <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950 dark:text-red-400">{membersError}</p>
                 )}
 
-                {!inviteLink ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="mb-2 block text-xs font-medium text-stone-500">Role</label>
-                      <div className="flex gap-2">
-                        {(["editor", "viewer"] as InvitationRole[]).map((r) => (
-                          <button
-                            key={r}
-                            onClick={() => setInviteRole(r)}
-                            className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors capitalize ${
-                              inviteRole === r
-                                ? "bg-amber-500 text-white"
-                                : "bg-stone-100 text-stone-600 hover:bg-amber-100 dark:bg-stone-800 dark:text-stone-300"
-                            }`}
-                          >
-                            {r}
-                          </button>
-                        ))}
-                      </div>
-                      <p className="mt-2 text-xs text-stone-400">
-                        {inviteRole === "editor" ? "Can create and edit tasks" : "Can view tasks only"}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleGenerateInvite}
-                      disabled={inviteLoading}
-                      className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50"
-                    >
-                      {inviteLoading ? "Generating..." : "Generate invite link"}
-                    </button>
-                  </div>
+                {membersLoading ? (
+                  <p className="text-sm text-stone-400 text-center py-4">Loading...</p>
                 ) : (
-                  <div className="space-y-3">
-                    <p className="text-xs text-stone-500">Share this link. It expires in 7 days.</p>
-                    <div className="flex gap-2">
-                      <input
-                        readOnly
-                        value={inviteLink}
-                        className="flex-1 min-w-0 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-xs dark:border-stone-700 dark:bg-stone-800"
-                      />
-                      <button
-                        onClick={handleCopy}
-                        className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                          copied ? "bg-green-500 text-white" : "bg-amber-500 text-white hover:bg-amber-400"
-                        }`}
-                      >
-                        {copied ? "Copied!" : "Copy"}
-                      </button>
+                  <div className="space-y-4">
+                    {/* Current members */}
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Members</p>
+                      <div className="flex flex-col gap-2">
+                        {members.map((m) => {
+                          const fm = familyMembers.find((f) => f.id === m.user_id);
+                          const isMe = m.user_id === currentUserId;
+                          return (
+                            <div key={m.id} className="flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2.5 dark:bg-stone-800">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+                                {(fm?.name ?? "?")[0].toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm font-medium truncate block">
+                                  {fm?.name ?? `User ${m.user_id}`}
+                                  {isMe && <span className="ml-1 text-stone-400 font-normal">(you)</span>}
+                                </span>
+                                <span className="text-xs text-stone-400 capitalize">{m.role}</span>
+                              </div>
+                              {!isMe && m.role !== "owner" && (
+                                <button
+                                  onClick={() => handleRemoveMember(m.user_id)}
+                                  disabled={removingUserId === m.user_id}
+                                  className="shrink-0 rounded-lg p-1.5 text-stone-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 disabled:opacity-50"
+                                >
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => setInviteLink(null)}
-                      className="w-full rounded-xl border border-stone-200 py-2.5 text-sm text-stone-500 hover:bg-stone-50 dark:border-stone-700"
-                    >
-                      Generate new link
-                    </button>
+
+                    {/* Add members */}
+                    {nonMembers.length > 0 && (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Add from family</p>
+                        <div className="flex flex-col gap-2">
+                          {nonMembers.map((fm) => (
+                            <div key={fm.id} className="flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2.5 dark:bg-stone-800">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-200 text-sm font-bold text-stone-500 dark:bg-stone-700">
+                                {fm.name[0].toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm font-medium truncate block">{fm.name}</span>
+                                <span className="text-xs text-stone-400 capitalize">{fm.role}</span>
+                              </div>
+                              <div className="flex gap-1 shrink-0">
+                                <button
+                                  onClick={() => handleAddMember(fm.id, "editor")}
+                                  disabled={addingUserId === fm.id}
+                                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium bg-amber-500 text-white hover:bg-amber-400 disabled:opacity-50 transition-colors"
+                                >
+                                  Editor
+                                </button>
+                                <button
+                                  onClick={() => handleAddMember(fm.id, "viewer")}
+                                  disabled={addingUserId === fm.id}
+                                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium bg-stone-200 text-stone-600 hover:bg-stone-300 dark:bg-stone-700 dark:text-stone-300 disabled:opacity-50 transition-colors"
+                                >
+                                  Viewer
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {nonMembers.length === 0 && members.length > 0 && !memberUserIds.has(0) && familyMembers.filter(f => f.id !== currentUserId).length === members.filter(m => m.user_id !== currentUserId).length && (
+                      <p className="text-xs text-stone-400 text-center">All family members are already in this space.</p>
+                    )}
                   </div>
                 )}
               </div>
