@@ -49,3 +49,19 @@ export async function updateTaskStatus(token: string, taskId: number, status: Ta
     body: JSON.stringify({ status }),
   });
 }
+
+export async function updateTask(
+  token: string,
+  taskId: number,
+  data: Partial<Pick<Task, "title" | "description" | "priority" | "points" | "due_date">>
+): Promise<Task> {
+  return apiFetch<Task>(`/tasks/${taskId}`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteTask(token: string, taskId: number): Promise<void> {
+  return apiFetch(`/tasks/${taskId}`, { method: "DELETE", token });
+}

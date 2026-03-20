@@ -22,9 +22,9 @@ const HEADER_STYLES: Record<TaskStatus, string> = {
   done: "text-green-600 dark:text-green-400",
 };
 
-type Props = { status: TaskStatus; tasks: Task[] };
+type Props = { status: TaskStatus; tasks: Task[]; onEditTask: (task: Task) => void };
 
-export default function KanbanColumn({ status, tasks }: Props) {
+export default function KanbanColumn({ status, tasks, onEditTask }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -41,7 +41,7 @@ export default function KanbanColumn({ status, tasks }: Props) {
       <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <div ref={setNodeRef} className="flex flex-col gap-2 p-3 min-h-[120px]">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard key={task.id} task={task} onEdit={() => onEditTask(task)} />
           ))}
         </div>
       </SortableContext>
