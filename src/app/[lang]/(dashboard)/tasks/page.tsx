@@ -1,5 +1,6 @@
 import { getAccessToken, getSession } from "@/lib/session";
-import { fetchTasks, fetchSpaces } from "@/lib/tasks";
+import { fetchTasks } from "@/lib/tasks";
+import { fetchSpaces } from "@/lib/spaces";
 import KanbanBoard from "@/components/kanban/KanbanBoard";
 import { redirect } from "next/navigation";
 import { getDictionary, hasLocale } from "@/app/[lang]/dictionaries";

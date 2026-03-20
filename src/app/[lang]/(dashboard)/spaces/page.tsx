@@ -21,6 +21,8 @@ export default async function SpacesPage({
     fetchFamily(token).catch(() => []),
   ]);
 
+  const canCreateSpaces = !(user.role === "child" && user.autonomy_level === 1);
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <SpacesClient
@@ -29,6 +31,7 @@ export default async function SpacesPage({
         lang={lang}
         familyMembers={familyMembers}
         currentUserId={user.id}
+        canCreateSpaces={canCreateSpaces}
       />
     </div>
   );

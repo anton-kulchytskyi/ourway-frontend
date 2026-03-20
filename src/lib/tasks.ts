@@ -21,6 +21,7 @@ export type Space = {
   name: string;
   emoji: string | null;
   organization_id: number;
+  my_role?: string | null;
 };
 
 export const STATUSES: TaskStatus[] = ["backlog", "todo", "in_progress", "blocked", "done"];

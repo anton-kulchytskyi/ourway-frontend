@@ -38,6 +38,8 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedSpace, setSelectedSpace] = useState<number | null>(defaultSpaceId ?? spaces[0]?.id ?? null);
+
+  const canCreateTask = spaces.find((s) => s.id === selectedSpace)?.my_role !== "viewer";
   const [showCreate, setShowCreate] = useState(false);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -131,7 +133,7 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
           ))}
         </div>
 
-        {spaces.length > 0 && (
+        {spaces.length > 0 && canCreateTask && (
           <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition-colors"
@@ -186,7 +188,7 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
       )}
 
       {/* FAB for mobile */}
-      {spaces.length > 0 && (
+      {spaces.length > 0 && canCreateTask && (
         <button
           onClick={() => setShowCreate(true)}
           className="fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 shadow-lg text-white hover:bg-amber-400 transition-colors md:hidden"

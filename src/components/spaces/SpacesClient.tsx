@@ -13,9 +13,9 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== "undefined
 
 const EMOJIS = ["🏠", "👨‍👩‍👧", "💼", "📚", "🛒", "🌿", "🎯", "⭐", "🚗", "💪"];
 
-type Props = { initialSpaces: Space[]; token: string; lang: string; familyMembers: FamilyMember[]; currentUserId: number };
+type Props = { initialSpaces: Space[]; token: string; lang: string; familyMembers: FamilyMember[]; currentUserId: number; canCreateSpaces?: boolean };
 
-export default function SpacesClient({ initialSpaces, token, lang, familyMembers, currentUserId }: Props) {
+export default function SpacesClient({ initialSpaces, token, lang, familyMembers, currentUserId, canCreateSpaces = true }: Props) {
   const dict = useDict(lang);
   const t = dict.spaces;
   const common = dict.common;
@@ -174,15 +174,17 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">{t.title}</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          {t.newSpace}
-        </button>
+        {canCreateSpaces && (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            {t.newSpace}
+          </button>
+        )}
       </div>
 
       {/* Spaces list */}
@@ -195,14 +197,16 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
       )}
 
       {/* FAB mobile */}
-      <button
-        onClick={() => setShowCreate(true)}
-        className="fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 shadow-lg text-white hover:bg-amber-400 transition-colors md:hidden"
-      >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-      </button>
+      {canCreateSpaces && (
+        <button
+          onClick={() => setShowCreate(true)}
+          className="fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 shadow-lg text-white hover:bg-amber-400 transition-colors md:hidden"
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      )}
 
       {/* Create sheet */}
       {showCreate && (
