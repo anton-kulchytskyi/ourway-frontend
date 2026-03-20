@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { logoutAction } from "@/actions/auth";
+import BottomNav from "@/components/nav/BottomNav";
+import Sidebar from "@/components/nav/Sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -17,26 +19,21 @@ export default async function DashboardLayout({
   const logout = logoutAction.bind(null, lang);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 border-b border-amber-200 bg-amber-50/90 backdrop-blur dark:border-amber-900 dark:bg-stone-950/90">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+    <div className="flex min-h-screen">
+      <Sidebar lang={lang} userName={user.name} logoutAction={logout} />
+
+      <div className="flex flex-1 flex-col md:ml-56">
+        {/* Mobile header */}
+        <header className="sticky top-0 z-10 flex h-14 items-center border-b border-amber-200 bg-amber-50/95 px-4 backdrop-blur md:hidden dark:border-amber-900 dark:bg-stone-950/95">
           <span className="font-bold text-amber-600 dark:text-amber-400">OurWay</span>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{user.name}</span>
-            <form action={logout}>
-              <button
-                type="submit"
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-stone-600 hover:bg-amber-100 dark:text-stone-300 dark:hover:bg-stone-800"
-              >
-                Logout
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
-        {children}
-      </main>
+        </header>
+
+        <main className="flex-1 px-4 py-6 pb-24 md:pb-6">
+          {children}
+        </main>
+      </div>
+
+      <BottomNav lang={lang} />
     </div>
   );
 }
