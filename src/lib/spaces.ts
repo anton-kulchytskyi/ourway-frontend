@@ -8,6 +8,7 @@ export type Space = {
   emoji: string | null;
   organization_id: number;
   my_role: SpaceMemberRole | null;
+  owner_name: string | null;
 };
 
 export async function fetchSpaces(token: string): Promise<Space[]> {
