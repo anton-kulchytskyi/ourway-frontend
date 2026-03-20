@@ -1,67 +1,50 @@
 {
-  "common": {
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "create": "Create",
-    "back": "Back",
-    "confirm": "Confirm"
-  },
-  "auth": {
-    "login": "Login",
-    "register": "Register",
-    "logout": "Logout",
-    "email": "Email",
-    "password": "Password",
-    "name": "Name",
-    "login_title": "Welcome back",
-    "register_title": "Create your family space",
-    "no_account": "Don't have an account?",
-    "have_account": "Already have an account?",
-    "invalid_credentials": "Invalid email or password"
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "my_tasks": "My Tasks",
-    "all_tasks": "All Tasks",
-    "family": "Family"
-  },
-  "spaces": {
-    "title": "Spaces",
-    "create": "New Space",
-    "empty": "No spaces yet",
-    "name_placeholder": "Space name",
-    "emoji_placeholder": "Emoji (optional)"
-  },
-  "tasks": {
-    "title": "Tasks",
-    "create": "New Task",
-    "empty": "No tasks yet",
-    "title_placeholder": "Task title",
-    "description_placeholder": "Description (optional)",
-    "due_date": "Due date",
-    "assignee": "Assignee",
-    "priority": "Priority",
-    "points": "Points",
-    "status": {
-      "backlog": "Backlog",
-      "todo": "To Do",
-      "in_progress": "In Progress",
-      "blocked": "Blocked",
-      "done": "Done"
-    },
-    "priority_values": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High"
-    }
+  "nav": {
+    "tasks": "Tasks",
+    "spaces": "Spaces",
+    "family": "Family",
+    "settings": "Settings"
   },
   "settings": {
     "title": "Settings",
+    "profile": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "autonomy": "Autonomy",
     "language": "Language",
-    "profile": "Profile"
+    "account": "Account",
+    "logout": "Logout",
+    "deleteAccount": "Delete account & all data",
+    "deleteConfirmTitle": "Delete account?",
+    "deleteConfirmOwner": "This will permanently delete your account, all spaces, tasks, and family members.",
+    "deleteConfirmMember": "This will permanently delete your account.",
+    "roles": { "owner": "Owner", "member": "Member", "child": "Child" },
+    "autonomyLevels": { "1": "Supervised", "2": "Semi-autonomous", "3": "Autonomous" }
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerLink": "Register",
+    "loginLink": "Sign in"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "create": "Create",
+    "goHome": "Go home",
+    "tryAgain": "Try again"
+  },
+  "errors": {
+    "404title": "Page not found",
+    "404message": "This page doesn't exist or was moved.",
+    "500title": "Something went wrong",
+    "500message": "An unexpected error occurred. Try again or go back home."
   }
 }

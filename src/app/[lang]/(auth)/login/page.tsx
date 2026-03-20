@@ -4,6 +4,7 @@ import { useActionState, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { loginAction } from "@/actions/auth";
+import { useDict } from "@/lib/useDict";
 
 function LoginForm() {
   const { lang } = useParams<{ lang: string }>();
@@ -11,6 +12,7 @@ function LoginForm() {
   const redirect = searchParams.get("redirect") ?? "";
   const boundAction = loginAction.bind(null, lang);
   const [state, action, pending] = useActionState(boundAction, undefined);
+  const t = useDict(lang).auth;
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
@@ -27,7 +29,7 @@ function LoginForm() {
           )}
 
           <div className="space-y-1">
-            <label className="text-sm font-medium" htmlFor="email">Email</label>
+            <label className="text-sm font-medium" htmlFor="email">{t.email}</label>
             <input
               id="email"
               name="email"
@@ -39,7 +41,7 @@ function LoginForm() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium" htmlFor="password">Password</label>
+            <label className="text-sm font-medium" htmlFor="password">{t.password}</label>
             <input
               id="password"
               name="password"
@@ -55,17 +57,17 @@ function LoginForm() {
             disabled={pending}
             className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50"
           >
-            {pending ? "..." : "Login"}
+            {pending ? "..." : t.loginButton}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-zinc-500">
-          Don&apos;t have an account?{" "}
+          {t.noAccount}{" "}
           <Link
             href={`/${lang}/register${redirect ? `?redirect=${redirect}` : ""}`}
             className="font-medium text-amber-600 underline dark:text-amber-400"
           >
-            Register
+            {t.registerLink}
           </Link>
         </p>
       </div>

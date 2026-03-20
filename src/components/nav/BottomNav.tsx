@@ -9,7 +9,8 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-type Props = { lang: string; userRole: string };
+type NavDict = { tasks: string; spaces: string; family: string; settings: string };
+type Props = { lang: string; userRole: string; nav: NavDict };
 
 function HomeIcon() {
   return (
@@ -52,14 +53,14 @@ function FamilyIcon() {
   );
 }
 
-export default function BottomNav({ lang, userRole }: Props) {
+export default function BottomNav({ lang, userRole, nav }: Props) {
   const pathname = usePathname();
 
   const items: NavItem[] = [
-    { href: `/${lang}/tasks`, label: "Tasks", icon: <TasksIcon /> },
-    { href: `/${lang}/spaces`, label: "Spaces", icon: <SpacesIcon /> },
-    ...(userRole === "owner" ? [{ href: `/${lang}/family`, label: "Family", icon: <FamilyIcon /> }] : []),
-    { href: `/${lang}/settings`, label: "Settings", icon: <SettingsIcon /> },
+    { href: `/${lang}/tasks`, label: nav.tasks, icon: <TasksIcon /> },
+    { href: `/${lang}/spaces`, label: nav.spaces, icon: <SpacesIcon /> },
+    ...(userRole === "owner" ? [{ href: `/${lang}/family`, label: nav.family, icon: <FamilyIcon /> }] : []),
+    { href: `/${lang}/settings`, label: nav.settings, icon: <SettingsIcon /> },
   ];
 
   return (

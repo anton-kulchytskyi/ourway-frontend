@@ -2,6 +2,7 @@ import { getAccessToken, getSession } from "@/lib/session";
 import { logoutAction, deleteAccountAction } from "@/actions/auth";
 import SettingsClient from "@/components/settings/SettingsClient";
 import { redirect } from "next/navigation";
+import { getDictionary, hasLocale } from "@/app/[lang]/dictionaries";
 
 export default async function SettingsPage({
   params,
@@ -15,6 +16,8 @@ export default async function SettingsPage({
   const user = await getSession();
   if (!user) redirect(`/${lang}/login`);
 
+  const locale = hasLocale(lang) ? lang : "en";
+  const dict = await getDictionary(locale);
   const logout = logoutAction.bind(null, lang);
   const deleteAccount = deleteAccountAction.bind(null, lang, token);
 
@@ -22,6 +25,7 @@ export default async function SettingsPage({
     <SettingsClient
       user={user}
       lang={lang}
+      t={dict.settings}
       logoutAction={logout}
       deleteAccountAction={deleteAccount}
     />

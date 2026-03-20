@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { logoutAction } from "@/actions/auth";
 import BottomNav from "@/components/nav/BottomNav";
 import Sidebar from "@/components/nav/Sidebar";
+import { getDictionary, hasLocale } from "@/app/[lang]/dictionaries";
 
 export default async function DashboardLayout({
   children,
@@ -16,11 +17,13 @@ export default async function DashboardLayout({
 
   if (!user) redirect(`/${lang}/login`);
 
+  const locale = hasLocale(lang) ? lang : "en";
+  const dict = await getDictionary(locale);
   const logout = logoutAction.bind(null, lang);
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar lang={lang} userName={user.name} userRole={user.role} logoutAction={logout} />
+      <Sidebar lang={lang} userName={user.name} userRole={user.role} logoutAction={logout} nav={dict.nav} />
 
       <div className="flex flex-1 flex-col md:ml-56">
         {/* Mobile header */}
@@ -33,7 +36,7 @@ export default async function DashboardLayout({
         </main>
       </div>
 
-      <BottomNav lang={lang} userRole={user.role} />
+      <BottomNav lang={lang} userRole={user.role} nav={dict.nav} />
     </div>
   );
 }
