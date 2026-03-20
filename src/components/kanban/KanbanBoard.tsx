@@ -26,12 +26,13 @@ type Props = {
   initialTasks: Task[];
   spaces: Space[];
   token: string;
+  defaultSpaceId?: number | null;
 };
 
-export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
+export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId }: Props) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [selectedSpace, setSelectedSpace] = useState<number | null>(spaces[0]?.id ?? null);
+  const [selectedSpace, setSelectedSpace] = useState<number | null>(defaultSpaceId ?? spaces[0]?.id ?? null);
   const [showCreate, setShowCreate] = useState(false);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);

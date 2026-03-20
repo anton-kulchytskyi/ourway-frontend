@@ -117,7 +117,7 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
               className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700 dark:bg-stone-800"
             >
               <Link
-                href={`/${lang}/tasks`}
+                href={`/${lang}/tasks?space=${space.id}`}
                 className="flex items-center gap-3 flex-1 min-w-0"
               >
                 <span className="text-2xl">{space.emoji ?? "📋"}</span>
