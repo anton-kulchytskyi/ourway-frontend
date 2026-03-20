@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Space, SpaceMember, SpaceMemberRole } from "@/lib/spaces";
-import { createSpace, deleteSpace, fetchSpaceMembers, addSpaceMember, removeSpaceMember } from "@/lib/spaces";
+import { fetchSpaces, createSpace, deleteSpace, fetchSpaceMembers, addSpaceMember, removeSpaceMember } from "@/lib/spaces";
 import { createInvitation, type InvitationRole } from "@/lib/invitations";
 import type { FamilyMember } from "@/lib/family";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -16,6 +16,21 @@ type Props = { initialSpaces: Space[]; token: string; lang: string; familyMember
 
 export default function SpacesClient({ initialSpaces, token, lang, familyMembers, currentUserId }: Props) {
   const [spaces, setSpaces] = useState<Space[]>(initialSpaces);
+
+  const reload = useCallback(async () => {
+    try {
+      const fresh = await fetchSpaces(token);
+      setSpaces(fresh);
+    } catch {}
+  }, [token]);
+
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") reload();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [reload]);
   const [showCreate, setShowCreate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Space | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
