@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useParams } from "next/navigation";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/tasks";
-import { updateTask, deleteTask, STATUS_LABELS } from "@/lib/tasks";
+import { STATUSES, updateTask, deleteTask } from "@/lib/tasks";
+import { useDict } from "@/lib/useDict";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 type Props = {
@@ -15,6 +17,11 @@ type Props = {
 };
 
 export default function EditTaskSheet({ task, token, canDelete = true, onUpdated, onDeleted, onClose }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const dict = useDict(lang);
+  const t = dict.tasks;
+  const s = dict.statuses;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -63,6 +70,14 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
 
   const defaultDueDate = task.due_date ? task.due_date.split("T")[0] : "";
 
+  const statusLabels: Record<TaskStatus, string> = {
+    backlog: s.backlog,
+    todo: s.todo,
+    in_progress: s.in_progress,
+    blocked: s.blocked,
+    done: s.done,
+  };
+
   return (
     <>
       <div className="modal-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose} />
@@ -71,7 +86,7 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
         <div className="modal-content w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
         <div className="overflow-y-auto px-5 pb-6 pt-5">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold">Edit Task</h2>
+            <h2 className="text-lg font-bold">{t.editTask}</h2>
             <button
               onClick={onClose}
               className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -94,50 +109,49 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
               name="title"
               required
               defaultValue={task.title}
-              placeholder="Task title"
+              placeholder={t.taskTitle}
               className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
             />
 
             <textarea
               name="description"
               defaultValue={task.description ?? ""}
-              placeholder="Description (optional)"
+              placeholder={t.description}
               rows={2}
               className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
             />
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-xs font-medium text-stone-500">Status</label>
+                <label className="mb-1 block text-xs font-medium text-stone-500">{t.status}</label>
                 <select
                   name="status"
                   defaultValue={task.status}
                   className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800"
                 >
-                  {(Object.entries(STATUS_LABELS) as [TaskStatus, string][]).map(([val, label]) => (
-                    <option key={val} value={val}>{label}</option>
+                  {STATUSES.map((val) => (
+                    <option key={val} value={val}>{statusLabels[val]}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-stone-500">Priority</label>
+                <label className="mb-1 block text-xs font-medium text-stone-500">{t.priority}</label>
                 <select
                   name="priority"
                   defaultValue={task.priority}
                   className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800"
                 >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+                  <option value="low">{t.priorities.low}</option>
+                  <option value="medium">{t.priorities.medium}</option>
+                  <option value="high">{t.priorities.high}</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-
               <div>
-                <label className="mb-1 block text-xs font-medium text-stone-500">Points</label>
+                <label className="mb-1 block text-xs font-medium text-stone-500">{t.points}</label>
                 <input
                   name="points"
                   type="number"
@@ -149,7 +163,7 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-stone-500">Due date</label>
+                <label className="mb-1 block text-xs font-medium text-stone-500">{t.dueDate}</label>
                 <input
                   name="due_date"
                   type="date"
@@ -166,7 +180,7 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
                   onClick={() => setConfirmDelete(true)}
                   className="rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
                 >
-                  Delete
+                  {t.delete}
                 </button>
               )}
               <button
@@ -174,7 +188,7 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
                 disabled={loading}
                 className="flex-1 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50"
               >
-                {loading ? "Saving..." : "Save"}
+                {loading ? t.saving : t.save}
               </button>
             </div>
           </form>
@@ -185,9 +199,10 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
 
       {confirmDelete && (
         <ConfirmModal
-          title="Delete task?"
-          message={`"${task.title}" will be permanently deleted.`}
-          confirmLabel="Delete"
+          title={t.deleteTaskTitle}
+          message={`"${task.title}" ${t.deleteConfirm}`}
+          confirmLabel={t.delete}
+          cancelLabel={dict.common.cancel}
           danger
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(false)}

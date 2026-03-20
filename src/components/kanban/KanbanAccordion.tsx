@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import type { Task, TaskStatus } from "@/lib/tasks";
-import { STATUSES, STATUS_LABELS } from "@/lib/tasks";
+import { STATUSES } from "@/lib/tasks";
+import { useDict } from "@/lib/useDict";
 
 const HEADER_COLORS: Record<TaskStatus, string> = {
   backlog: "text-stone-500",
@@ -32,6 +34,21 @@ type Props = {
 };
 
 export default function KanbanAccordion({ tasksByStatus, onViewTask }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const dict = useDict(lang);
+  const s = dict.statuses;
+  const t = dict.tasks;
+
+  const statusLabels: Record<TaskStatus, string> = {
+    backlog: s.backlog,
+    todo: s.todo,
+    in_progress: s.in_progress,
+    blocked: s.blocked,
+    done: s.done,
+  };
+
+  const priorityLabels = t.priorities;
+
   const [open, setOpen] = useState<TaskStatus | null>("todo");
 
   return (
@@ -47,7 +64,7 @@ export default function KanbanAccordion({ tasksByStatus, onViewTask }: Props) {
               className="w-full flex items-center justify-between px-4 py-3"
             >
               <span className={`text-sm font-semibold ${HEADER_COLORS[status]}`}>
-                {STATUS_LABELS[status]}
+                {statusLabels[status]}
               </span>
               <div className="flex items-center gap-2">
                 <span className="rounded-full bg-stone-200 dark:bg-stone-700 px-2 py-0.5 text-xs font-medium text-stone-600 dark:text-stone-300">
@@ -65,7 +82,7 @@ export default function KanbanAccordion({ tasksByStatus, onViewTask }: Props) {
             {isOpen && (
               <div className="flex flex-col gap-2 px-3 pb-3 pt-2 border-t border-stone-100 dark:border-stone-800">
                 {tasks.length === 0 ? (
-                  <p className="text-center text-xs text-stone-400 py-3">No tasks</p>
+                  <p className="text-center text-xs text-stone-400 py-3">{t.noTasks}</p>
                 ) : (
                   tasks.map((task) => (
                     <button
@@ -83,7 +100,7 @@ export default function KanbanAccordion({ tasksByStatus, onViewTask }: Props) {
                       )}
                       <div className="mt-2 flex items-center gap-2 flex-wrap">
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                          {task.priority}
+                          {priorityLabels[task.priority]}
                         </span>
                         {task.points > 0 && (
                           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import type { Task, TaskStatus } from "@/lib/tasks";
-import { STATUSES, STATUS_LABELS, updateTaskStatus } from "@/lib/tasks";
+import { STATUSES, updateTaskStatus } from "@/lib/tasks";
+import { useDict } from "@/lib/useDict";
 
 const PRIORITY_COLORS = {
   low: "bg-stone-100 text-stone-500",
@@ -47,8 +49,23 @@ type Props = {
 };
 
 export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const dict = useDict(lang);
+  const t = dict.tasks;
+  const s = dict.statuses;
+
   const [currentStatus, setCurrentStatus] = useState<TaskStatus>(task.status);
   const [changing, setChanging] = useState<TaskStatus | null>(null);
+
+  const statusLabels: Record<TaskStatus, string> = {
+    backlog: s.backlog,
+    todo: s.todo,
+    in_progress: s.in_progress,
+    blocked: s.blocked,
+    done: s.done,
+  };
+
+  const priorityLabels = t.priorities;
 
   const dueDate = task.due_date
     ? new Date(task.due_date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
@@ -93,7 +110,7 @@ export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose 
 
             <div className="flex flex-wrap gap-2 mb-5">
               <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${PRIORITY_COLORS[task.priority]}`}>
-                {task.priority}
+                {priorityLabels[task.priority]}
               </span>
               {task.points > 0 && (
                 <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
@@ -115,7 +132,7 @@ export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose 
                 return (
                   <button
                     key={status}
-                    title={STATUS_LABELS[status]}
+                    title={statusLabels[status]}
                     onClick={() => handleStatusChange(status)}
                     disabled={!!changing}
                     className={`flex-1 flex items-center justify-center rounded-xl p-2 transition-colors ${
@@ -134,7 +151,7 @@ export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose 
               onClick={onEdit}
               className="w-full rounded-xl border border-stone-200 dark:border-stone-700 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-300 transition hover:bg-stone-50 dark:hover:bg-stone-800"
             >
-              Edit
+              {t.edit}
             </button>
           </div>
         </div>

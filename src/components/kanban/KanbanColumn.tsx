@@ -2,8 +2,9 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useParams } from "next/navigation";
 import type { Task, TaskStatus } from "@/lib/tasks";
-import { STATUS_LABELS } from "@/lib/tasks";
+import { useDict } from "@/lib/useDict";
 import TaskCard from "./TaskCard";
 
 const COLUMN_STYLES: Record<TaskStatus, string> = {
@@ -25,13 +26,23 @@ const HEADER_STYLES: Record<TaskStatus, string> = {
 type Props = { status: TaskStatus; tasks: Task[]; onViewTask: (task: Task) => void };
 
 export default function KanbanColumn({ status, tasks, onViewTask }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const s = useDict(lang).statuses;
+  const statusLabels: Record<TaskStatus, string> = {
+    backlog: s.backlog,
+    todo: s.todo,
+    in_progress: s.in_progress,
+    blocked: s.blocked,
+    done: s.done,
+  };
+
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
     <div className={`flex flex-col rounded-2xl border-2 bg-stone-50 dark:bg-stone-900 min-w-[260px] w-[260px] flex-shrink-0 transition-colors ${COLUMN_STYLES[status]} ${isOver ? "bg-amber-50 dark:bg-stone-800" : ""}`}>
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100 dark:border-stone-800">
         <span className={`text-sm font-semibold ${HEADER_STYLES[status]}`}>
-          {STATUS_LABELS[status]}
+          {statusLabels[status]}
         </span>
         <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300">
           {tasks.length}

@@ -1,26 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import type { FamilyMember } from "@/lib/family";
 import { createChild, updateChildAutonomy } from "@/lib/family";
-
-const AUTONOMY_LABELS: Record<number, string> = {
-  1: "Supervised",
-  2: "Semi-autonomous",
-  3: "Autonomous",
-};
-
-const AUTONOMY_DESCRIPTIONS: Record<number, string> = {
-  1: "Parent sees all spaces",
-  2: "Parent can join spaces manually",
-  3: "Full privacy",
-};
-
-const ROLE_LABELS: Record<string, string> = {
-  owner: "Owner",
-  member: "Member",
-  child: "Child",
-};
+import { useDict } from "@/lib/useDict";
 
 type Props = {
   initialMembers: FamilyMember[];
@@ -30,6 +14,11 @@ type Props = {
 };
 
 export default function FamilyClient({ initialMembers, token, isOwner, currentUserId }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const dict = useDict(lang);
+  const t = dict.family;
+  const settings = dict.settings;
+
   const [members, setMembers] = useState<FamilyMember[]>(initialMembers);
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
@@ -74,10 +63,13 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
   const children = members.filter((m) => m.role === "child");
   const adults = members.filter((m) => m.role !== "child");
 
+  const autonomyLabels = t.autonomyLabels as Record<string, string>;
+  const autonomyDescriptions = t.autonomyDescriptions as Record<string, string>;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Family</h1>
+        <h1 className="text-xl font-bold">{t.title}</h1>
         {isOwner && (
           <button
             onClick={() => setShowCreate(true)}
@@ -86,14 +78,14 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            Add Child
+            {t.addChild}
           </button>
         )}
       </div>
 
       {/* Adults */}
       <div>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Members</h2>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.membersSection}</h2>
         <div className="flex flex-col gap-2">
           {adults.map((m) => (
             <div
@@ -107,13 +99,13 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{m.name}</span>
                   {m.id === currentUserId && (
-                    <span className="text-xs text-stone-400">(you)</span>
+                    <span className="text-xs text-stone-400">{t.you}</span>
                   )}
                 </div>
                 <span className="text-xs text-stone-400">{m.email}</span>
               </div>
               <span className="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-500 dark:bg-stone-700 dark:text-stone-400">
-                {ROLE_LABELS[m.role]}
+                {settings.roles[m.role as keyof typeof settings.roles] ?? m.role}
               </span>
             </div>
           ))}
@@ -122,10 +114,10 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
 
       {/* Children */}
       <div>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Children</h2>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.childrenSection}</h2>
         {children.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-400 dark:border-stone-700">
-            No child accounts yet.
+            {t.noChildren}
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -146,7 +138,7 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
 
                 {isOwner && (
                   <div>
-                    <p className="mb-2 text-xs font-medium text-stone-500">Autonomy level</p>
+                    <p className="mb-2 text-xs font-medium text-stone-500">{t.autonomyLevel}</p>
                     <div className="flex gap-2">
                       {[1, 2, 3].map((level) => (
                         <button
@@ -158,21 +150,21 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                               ? "bg-amber-500 text-white"
                               : "bg-stone-100 text-stone-500 hover:bg-amber-100 dark:bg-stone-700 dark:text-stone-400"
                           } ${updatingId === child.id ? "opacity-50" : ""}`}
-                          title={AUTONOMY_DESCRIPTIONS[level]}
+                          title={autonomyDescriptions[String(level)]}
                         >
-                          {AUTONOMY_LABELS[level]}
+                          {autonomyLabels[String(level)]}
                         </button>
                       ))}
                     </div>
                     <p className="mt-1.5 text-xs text-stone-400">
-                      {AUTONOMY_DESCRIPTIONS[child.autonomy_level ?? 1]}
+                      {autonomyDescriptions[String(child.autonomy_level ?? 1)]}
                     </p>
                   </div>
                 )}
 
                 {!isOwner && child.autonomy_level && (
                   <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-500 dark:bg-stone-700">
-                    {AUTONOMY_LABELS[child.autonomy_level]}
+                    {autonomyLabels[String(child.autonomy_level)]}
                   </span>
                 )}
               </div>
@@ -192,7 +184,7 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
             <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl pointer-events-auto">
               <div className="px-5 pb-6 pt-5">
                 <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-lg font-bold">Add Child Account</h2>
+                  <h2 className="text-lg font-bold">{t.addChildTitle}</h2>
                   <button
                     onClick={() => setShowCreate(false)}
                     className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -211,18 +203,18 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
 
                 <form onSubmit={handleCreate} className="space-y-4">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-stone-500">Name</label>
+                    <label className="mb-1 block text-xs font-medium text-stone-500">{t.name}</label>
                     <input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      placeholder="Child's name"
+                      placeholder={t.childName}
                       className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-stone-500">Email</label>
+                    <label className="mb-1 block text-xs font-medium text-stone-500">{t.email}</label>
                     <input
                       type="email"
                       value={email}
@@ -234,14 +226,14 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-stone-500">Password</label>
+                    <label className="mb-1 block text-xs font-medium text-stone-500">{t.password}</label>
                     <div className="relative">
                       <input
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="Set a password"
+                        placeholder={t.passwordPlaceholder}
                         className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 pr-11 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
                       />
                       <button
@@ -264,7 +256,7 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-xs font-medium text-stone-500">Autonomy level</label>
+                    <label className="mb-2 block text-xs font-medium text-stone-500">{t.autonomyLevel}</label>
                     <div className="flex gap-2">
                       {[1, 2, 3].map((level) => (
                         <button
@@ -277,11 +269,11 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                               : "bg-stone-100 text-stone-500 hover:bg-amber-100 dark:bg-stone-700 dark:text-stone-400"
                           }`}
                         >
-                          {AUTONOMY_LABELS[level]}
+                          {autonomyLabels[String(level)]}
                         </button>
                       ))}
                     </div>
-                    <p className="mt-1.5 text-xs text-stone-400">{AUTONOMY_DESCRIPTIONS[autonomyLevel]}</p>
+                    <p className="mt-1.5 text-xs text-stone-400">{autonomyDescriptions[String(autonomyLevel)]}</p>
                   </div>
 
                   <button
@@ -289,7 +281,7 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                     disabled={loading}
                     className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50"
                   >
-                    {loading ? "Creating..." : "Create Account"}
+                    {loading ? t.creating : t.createAccount}
                   </button>
                 </form>
               </div>

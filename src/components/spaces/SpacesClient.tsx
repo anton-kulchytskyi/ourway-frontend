@@ -5,6 +5,7 @@ import type { Space, SpaceMember, SpaceMemberRole } from "@/lib/spaces";
 import { fetchSpaces, createSpace, deleteSpace, fetchSpaceMembers, addSpaceMember, removeSpaceMember } from "@/lib/spaces";
 import { createInvitation, type InvitationRole } from "@/lib/invitations";
 import type { FamilyMember } from "@/lib/family";
+import { useDict } from "@/lib/useDict";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Link from "next/link";
 
@@ -15,6 +16,10 @@ const EMOJIS = ["🏠", "👨‍👩‍👧", "💼", "📚", "🛒", "🌿", "�
 type Props = { initialSpaces: Space[]; token: string; lang: string; familyMembers: FamilyMember[]; currentUserId: number };
 
 export default function SpacesClient({ initialSpaces, token, lang, familyMembers, currentUserId }: Props) {
+  const dict = useDict(lang);
+  const t = dict.spaces;
+  const common = dict.common;
+
   const [spaces, setSpaces] = useState<Space[]>(initialSpaces);
 
   const reload = useCallback(async () => {
@@ -165,12 +170,10 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
       )
     : [];
 
-  const memberUserIds = new Set(members.map((m) => m.user_id));
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Spaces</h1>
+        <h1 className="text-xl font-bold">{t.title}</h1>
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition-colors"
@@ -178,17 +181,17 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          New Space
+          {t.newSpace}
         </button>
       </div>
 
       {/* Spaces list */}
       {spaces.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-stone-300 p-10 text-center text-stone-400 dark:border-stone-700">
-          No spaces yet. Create your first space!
+          {t.noSpaces}
         </div>
       ) : (
-        <SpaceGroups spaces={spaces} lang={lang} onMembers={openMembers} onDelete={setConfirmDelete} />
+        <SpaceGroups spaces={spaces} lang={lang} t={t} onMembers={openMembers} onDelete={setConfirmDelete} />
       )}
 
       {/* FAB mobile */}
@@ -209,7 +212,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
           <div className="modal-content w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
             <div className="overflow-y-auto px-5 pb-6 pt-5">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold">New Space</h2>
+                <h2 className="text-lg font-bold">{t.newSpace}</h2>
                 <button
                   onClick={() => setShowCreate(false)}
                   className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -228,18 +231,18 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
 
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-stone-500">Name</label>
+                  <label className="mb-1 block text-xs font-medium text-stone-500">{t.name}</label>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    placeholder="Family, Work, Home..."
+                    placeholder={t.namePlaceholder}
                     className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-xs font-medium text-stone-500">Emoji</label>
+                  <label className="mb-2 block text-xs font-medium text-stone-500">{t.emoji}</label>
                   <div className="flex flex-wrap gap-2">
                     {EMOJIS.map((e) => (
                       <button
@@ -263,7 +266,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                   disabled={loading}
                   className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50"
                 >
-                  {loading ? "Creating..." : "Create Space"}
+                  {loading ? t.creating : t.createSpace}
                 </button>
               </form>
             </div>
@@ -276,16 +279,17 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
       {deleteError && (
         <div className="fixed bottom-24 left-4 right-4 z-50 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 shadow-lg dark:bg-red-950 dark:text-red-400">
           {deleteError}
-          <button onClick={() => setDeleteError(null)} className="ml-2 font-medium underline">Dismiss</button>
+          <button onClick={() => setDeleteError(null)} className="ml-2 font-medium underline">{common.dismiss}</button>
         </div>
       )}
 
       {/* Confirm delete */}
       {confirmDelete && (
         <ConfirmModal
-          title="Delete space?"
-          message={`"${confirmDelete.name}" and all its tasks will be permanently deleted.`}
-          confirmLabel="Delete"
+          title={t.deleteConfirmTitle}
+          message={`"${confirmDelete.name}" ${t.deleteConfirmSuffix}`}
+          confirmLabel={common.delete}
+          cancelLabel={common.cancel}
           danger
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(null)}
@@ -315,12 +319,12 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                 )}
 
                 {membersLoading ? (
-                  <p className="text-sm text-stone-400 text-center py-4">Loading...</p>
+                  <p className="text-sm text-stone-400 text-center py-4">{common.loading}</p>
                 ) : (
                   <div className="space-y-4">
                     {/* Current members */}
                     <div>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Members</p>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.members}</p>
                       <div className="flex flex-col gap-2">
                         {members.map((m) => {
                           const fm = familyMembers.find((f) => f.id === m.user_id);
@@ -333,7 +337,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                               <div className="flex-1 min-w-0">
                                 <span className="text-sm font-medium truncate block">
                                   {fm?.name ?? `User ${m.user_id}`}
-                                  {isMe && <span className="ml-1 text-stone-400 font-normal">(you)</span>}
+                                  {isMe && <span className="ml-1 text-stone-400 font-normal">{t.you}</span>}
                                 </span>
                                 <span className="text-xs text-stone-400 capitalize">{m.role}</span>
                               </div>
@@ -357,7 +361,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                     {/* Add members */}
                     {nonMembers.length > 0 && (
                       <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Add from family</p>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.addFromFamily}</p>
                         <div className="flex flex-col gap-2">
                           {nonMembers.map((fm) => (
                             <div key={fm.id} className="flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2.5 dark:bg-stone-800">
@@ -374,14 +378,14 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                                   disabled={addingUserId === fm.id}
                                   className="rounded-lg px-2.5 py-1.5 text-xs font-medium bg-amber-500 text-white hover:bg-amber-400 disabled:opacity-50 transition-colors"
                                 >
-                                  Editor
+                                  {t.editor}
                                 </button>
                                 <button
                                   onClick={() => handleAddMember(fm.id, "viewer")}
                                   disabled={addingUserId === fm.id}
                                   className="rounded-lg px-2.5 py-1.5 text-xs font-medium bg-stone-200 text-stone-600 hover:bg-stone-300 dark:bg-stone-700 dark:text-stone-300 disabled:opacity-50 transition-colors"
                                 >
-                                  Viewer
+                                  {t.viewer}
                                 </button>
                               </div>
                             </div>
@@ -392,7 +396,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
 
                     {/* Invite external */}
                     <div>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Invite external</p>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.inviteExternal}</p>
                       {!inviteLink ? (
                         <div className="space-y-2">
                           <div className="flex gap-2">
@@ -406,7 +410,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                                     : "bg-stone-100 text-stone-500 hover:bg-amber-100 dark:bg-stone-700 dark:text-stone-400"
                                 }`}
                               >
-                                {r}
+                                {r === "editor" ? t.editor : t.viewer}
                               </button>
                             ))}
                           </div>
@@ -415,12 +419,12 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                             disabled={inviteLoading}
                             className="w-full rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-500 hover:bg-stone-50 dark:border-stone-700 disabled:opacity-50"
                           >
-                            {inviteLoading ? "Generating..." : "Generate invite link"}
+                            {inviteLoading ? t.generating : t.generateInviteLink}
                           </button>
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <p className="text-xs text-stone-400">Share this link. Expires in 7 days.</p>
+                          <p className="text-xs text-stone-400">{t.shareLink}</p>
                           <div className="flex gap-2">
                             <input
                               readOnly
@@ -433,14 +437,14 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                                 copied ? "bg-green-500 text-white" : "bg-amber-500 text-white hover:bg-amber-400"
                               }`}
                             >
-                              {copied ? "Copied!" : "Copy"}
+                              {copied ? t.copied : t.copy}
                             </button>
                           </div>
                           <button
                             onClick={() => setInviteLink(null)}
                             className="w-full rounded-xl border border-stone-200 py-2 text-xs text-stone-400 hover:bg-stone-50 dark:border-stone-700"
                           >
-                            Generate new link
+                            {t.generateNewLink}
                           </button>
                         </div>
                       )}
@@ -456,9 +460,12 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
   );
 }
 
-function SpaceCard({ space, lang, onMembers, onDelete }: {
+type SpacesDict = ReturnType<typeof useDict>["spaces"];
+
+function SpaceCard({ space, lang, t, onMembers, onDelete }: {
   space: Space;
   lang: string;
+  t: SpacesDict;
   onMembers: (s: Space) => void;
   onDelete: (s: Space) => void;
 }) {
@@ -478,7 +485,7 @@ function SpaceCard({ space, lang, onMembers, onDelete }: {
           <button
             onClick={() => onMembers(space)}
             className="rounded-lg p-2 text-stone-400 hover:bg-amber-50 hover:text-amber-500 dark:hover:bg-amber-950 transition-colors"
-            title="Manage members"
+            title={t.members}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -498,9 +505,10 @@ function SpaceCard({ space, lang, onMembers, onDelete }: {
   );
 }
 
-function SpaceGroups({ spaces, lang, onMembers, onDelete }: {
+function SpaceGroups({ spaces, lang, t, onMembers, onDelete }: {
   spaces: Space[];
   lang: string;
+  t: SpacesDict;
   onMembers: (s: Space) => void;
   onDelete: (s: Space) => void;
 }) {
@@ -518,18 +526,18 @@ function SpaceGroups({ spaces, lang, onMembers, onDelete }: {
     <div className="flex flex-col gap-5">
       {mySpaces.length > 0 && (
         <div>
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">My spaces</h2>
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.mySpaces}</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {mySpaces.map((s) => <SpaceCard key={s.id} space={s} lang={lang} onMembers={onMembers} onDelete={onDelete} />)}
+            {mySpaces.map((s) => <SpaceCard key={s.id} space={s} lang={lang} t={t} onMembers={onMembers} onDelete={onDelete} />)}
           </div>
         </div>
       )}
 
       {Object.entries(sharedByOwner).map(([ownerName, ownerSpaces]) => (
         <div key={ownerName}>
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{ownerName}&apos;s spaces</h2>
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">{ownerName}{t.spacesGroupSuffix}</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {ownerSpaces.map((s) => <SpaceCard key={s.id} space={s} lang={lang} onMembers={onMembers} onDelete={onDelete} />)}
+            {ownerSpaces.map((s) => <SpaceCard key={s.id} space={s} lang={lang} t={t} onMembers={onMembers} onDelete={onDelete} />)}
           </div>
         </div>
       ))}

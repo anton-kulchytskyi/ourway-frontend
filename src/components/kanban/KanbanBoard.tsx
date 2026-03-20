@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
 import {
   DndContext,
   DragEndEvent,
@@ -15,6 +16,7 @@ import {
 import { SortableContext } from "@dnd-kit/sortable";
 import type { Task, TaskStatus, Space } from "@/lib/tasks";
 import { STATUSES, updateTaskStatus, fetchTasks } from "@/lib/tasks";
+import { useDict } from "@/lib/useDict";
 import KanbanColumn from "./KanbanColumn";
 import TaskCard from "./TaskCard";
 import CreateTaskSheet from "./CreateTaskSheet";
@@ -31,6 +33,8 @@ type Props = {
 };
 
 export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId, canDeleteTasks = true }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const t = useDict(lang).tasks;
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedSpace, setSelectedSpace] = useState<number | null>(defaultSpaceId ?? spaces[0]?.id ?? null);
@@ -135,14 +139,14 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            New Task
+            {t.newTask}
           </button>
         )}
       </div>
 
       {spaces.length === 0 && (
         <div className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-400 dark:border-stone-700">
-          No spaces yet. Create a space first.
+          {t.noSpaces}
         </div>
       )}
 

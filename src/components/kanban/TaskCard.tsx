@@ -2,7 +2,9 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useParams } from "next/navigation";
 import type { Task } from "@/lib/tasks";
+import { useDict } from "@/lib/useDict";
 
 const PRIORITY_COLORS = {
   low: "bg-stone-100 text-stone-500 dark:bg-stone-800",
@@ -16,6 +18,9 @@ type Props = {
 };
 
 export default function TaskCard({ task, onView }: Props) {
+  const { lang } = useParams<{ lang: string }>();
+  const priorities = useDict(lang).tasks.priorities;
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 
@@ -47,7 +52,7 @@ export default function TaskCard({ task, onView }: Props) {
 
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${PRIORITY_COLORS[task.priority]}`}>
-          {task.priority}
+          {priorities[task.priority]}
         </span>
         {task.points > 0 && (
           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
