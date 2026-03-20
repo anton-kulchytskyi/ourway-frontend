@@ -31,6 +31,7 @@ export default async function LangLayout({
     <html lang={lang} className={`${geist.variable} h-full antialiased`}>
       <head>
         <meta name="theme-color" content="#f59e0b" />
+        <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
       </head>
       <body className="min-h-full flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-50">
