@@ -339,7 +339,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                                   {fm?.name ?? `User ${m.user_id}`}
                                   {isMe && <span className="ml-1 text-stone-400 font-normal">{t.you}</span>}
                                 </span>
-                                <span className="text-xs text-stone-400 capitalize">{m.role}</span>
+                                <span className="text-xs text-stone-400">{(t as Record<string, string>)[m.role] ?? m.role}</span>
                               </div>
                               {!isMe && m.role !== "owner" && (
                                 <button
@@ -370,7 +370,7 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                               </div>
                               <div className="flex-1 min-w-0">
                                 <span className="text-sm font-medium truncate block">{fm.name}</span>
-                                <span className="text-xs text-stone-400 capitalize">{fm.role}</span>
+                                <span className="text-xs text-stone-400">{(t as Record<string, string>)[fm.role] ?? fm.role}</span>
                               </div>
                               <div className="flex gap-1 shrink-0">
                                 <button
@@ -476,7 +476,7 @@ function SpaceCard({ space, lang, t, onMembers, onDelete }: {
         <div className="min-w-0">
           <span className="font-medium truncate block">{space.name}</span>
           {space.my_role && space.my_role !== "owner" && (
-            <span className="text-xs text-stone-400 capitalize">{space.my_role}</span>
+            <span className="text-xs text-stone-400">{(t as Record<string, string>)[space.my_role] ?? space.my_role}</span>
           )}
         </div>
       </Link>

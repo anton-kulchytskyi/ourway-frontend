@@ -2,6 +2,7 @@ import { getAccessToken, getSession } from "@/lib/session";
 import { fetchTasks, fetchSpaces } from "@/lib/tasks";
 import KanbanBoard from "@/components/kanban/KanbanBoard";
 import { redirect } from "next/navigation";
+import { getDictionary, hasLocale } from "@/app/[lang]/dictionaries";
 
 export default async function TasksPage({
   params,
@@ -12,6 +13,8 @@ export default async function TasksPage({
 }) {
   const { lang } = await params;
   const { space } = await searchParams;
+  const locale = hasLocale(lang) ? lang : "en";
+  const dict = await getDictionary(locale);
   const token = await getAccessToken();
   if (!token) redirect(`/${lang}/login`);
 
@@ -28,7 +31,7 @@ export default async function TasksPage({
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <h1 className="text-xl font-bold">Tasks</h1>
+      <h1 className="text-xl font-bold">{dict.tasks.title}</h1>
       <KanbanBoard initialTasks={tasks} spaces={spaces} token={token} defaultSpaceId={defaultSpaceId} canDeleteTasks={canDeleteTasks} />
     </div>
   );
