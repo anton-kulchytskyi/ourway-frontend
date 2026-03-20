@@ -3,9 +3,12 @@
 import { useState } from "react";
 import type { Space, SpaceMember, SpaceMemberRole } from "@/lib/spaces";
 import { createSpace, deleteSpace, fetchSpaceMembers, addSpaceMember, removeSpaceMember } from "@/lib/spaces";
+import { createInvitation, type InvitationRole } from "@/lib/invitations";
 import type { FamilyMember } from "@/lib/family";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Link from "next/link";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
 
 const EMOJIS = ["🏠", "👨‍👩‍👧", "💼", "📚", "🛒", "🌿", "🎯", "⭐", "🚗", "💪"];
 
@@ -29,6 +32,12 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
   const [removingUserId, setRemovingUserId] = useState<number | null>(null);
   const [membersError, setMembersError] = useState<string | null>(null);
 
+  // Invite via link
+  const [inviteRole, setInviteRole] = useState<InvitationRole>("editor");
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   async function openMembers(space: Space) {
     setMembersSpace(space);
     setMembersError(null);
@@ -47,6 +56,30 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
     setMembersSpace(null);
     setMembers([]);
     setMembersError(null);
+    setInviteLink(null);
+    setCopied(false);
+  }
+
+  async function handleGenerateInvite() {
+    if (!membersSpace) return;
+    setInviteLoading(true);
+    setMembersError(null);
+    try {
+      const inv = await createInvitation(token, membersSpace.id, inviteRole);
+      setInviteLink(`${APP_URL}/en/invite/${inv.token}`);
+    } catch (err: unknown) {
+      const e = err as { detail?: string };
+      setMembersError(e.detail ?? "Failed to create invitation");
+    } finally {
+      setInviteLoading(false);
+    }
+  }
+
+  async function handleCopy() {
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function handleAddMember(userId: number, role: SpaceMemberRole) {
@@ -383,9 +416,61 @@ export default function SpacesClient({ initialSpaces, token, lang, familyMembers
                       </div>
                     )}
 
-                    {nonMembers.length === 0 && members.length > 0 && !memberUserIds.has(0) && familyMembers.filter(f => f.id !== currentUserId).length === members.filter(m => m.user_id !== currentUserId).length && (
-                      <p className="text-xs text-stone-400 text-center">All family members are already in this space.</p>
-                    )}
+                    {/* Invite external */}
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400">Invite external</p>
+                      {!inviteLink ? (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            {(["editor", "viewer"] as InvitationRole[]).map((r) => (
+                              <button
+                                key={r}
+                                onClick={() => setInviteRole(r)}
+                                className={`flex-1 rounded-xl py-2 text-xs font-medium capitalize transition-colors ${
+                                  inviteRole === r
+                                    ? "bg-amber-500 text-white"
+                                    : "bg-stone-100 text-stone-500 hover:bg-amber-100 dark:bg-stone-700 dark:text-stone-400"
+                                }`}
+                              >
+                                {r}
+                              </button>
+                            ))}
+                          </div>
+                          <button
+                            onClick={handleGenerateInvite}
+                            disabled={inviteLoading}
+                            className="w-full rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-500 hover:bg-stone-50 dark:border-stone-700 disabled:opacity-50"
+                          >
+                            {inviteLoading ? "Generating..." : "Generate invite link"}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-xs text-stone-400">Share this link. Expires in 7 days.</p>
+                          <div className="flex gap-2">
+                            <input
+                              readOnly
+                              value={inviteLink}
+                              className="flex-1 min-w-0 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs dark:border-stone-700 dark:bg-stone-800"
+                            />
+                            <button
+                              onClick={handleCopy}
+                              className={`shrink-0 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+                                copied ? "bg-green-500 text-white" : "bg-amber-500 text-white hover:bg-amber-400"
+                              }`}
+                            >
+                              {copied ? "Copied!" : "Copy"}
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => setInviteLink(null)}
+                            className="w-full rounded-xl border border-stone-200 py-2 text-xs text-stone-400 hover:bg-stone-50 dark:border-stone-700"
+                          >
+                            Generate new link
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

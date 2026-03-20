@@ -11,6 +11,7 @@ export type SessionUser = {
   name: string;
   role: "owner" | "member" | "child";
   locale: string;
+  autonomy_level?: number | null;
 };
 
 export async function setSession(accessToken: string, refreshToken: string) {

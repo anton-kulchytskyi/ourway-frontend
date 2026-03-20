@@ -8,12 +8,13 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 type Props = {
   task: Task;
   token: string;
+  canDelete?: boolean;
   onUpdated: (task: Task) => void;
   onDeleted: (taskId: number) => void;
   onClose: () => void;
 };
 
-export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClose }: Props) {
+export default function EditTaskSheet({ task, token, canDelete = true, onUpdated, onDeleted, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -159,13 +160,15 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
             </div>
 
             <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
-              >
-                Delete
-              </button>
+              {canDelete && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
+                >
+                  Delete
+                </button>
+              )}
               <button
                 type="submit"
                 disabled={loading}

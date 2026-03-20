@@ -27,9 +27,10 @@ type Props = {
   spaces: Space[];
   token: string;
   defaultSpaceId?: number | null;
+  canDeleteTasks?: boolean;
 };
 
-export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId }: Props) {
+export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId, canDeleteTasks = true }: Props) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedSpace, setSelectedSpace] = useState<number | null>(defaultSpaceId ?? spaces[0]?.id ?? null);
@@ -222,6 +223,7 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
         <EditTaskSheet
           task={editingTask}
           token={token}
+          canDelete={canDeleteTasks}
           onUpdated={(updated) => {
             setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             setViewingTask(null);
