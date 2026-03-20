@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/tasks";
 import { updateTask, deleteTask, STATUS_LABELS } from "@/lib/tasks";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 type Props = {
   task: Task;
@@ -15,6 +16,7 @@ type Props = {
 export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,7 +51,6 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
   }
 
   async function handleDelete() {
-    if (!confirm("Delete this task?")) return;
     try {
       await deleteTask(token, task.id);
       onDeleted(task.id);
@@ -160,7 +161,7 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 className="rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
               >
                 Delete
@@ -178,6 +179,17 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
 
         </div>
       </div>
+
+      {confirmDelete && (
+        <ConfirmModal
+          title="Delete task?"
+          message={`"${task.title}" will be permanently deleted.`}
+          confirmLabel="Delete"
+          danger
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </>
   );
 }

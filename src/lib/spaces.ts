@@ -1,10 +1,13 @@
 import { apiFetch } from "./api";
 
+export type SpaceMemberRole = "owner" | "editor" | "viewer";
+
 export type Space = {
   id: number;
   name: string;
   emoji: string | null;
   organization_id: number;
+  my_role: SpaceMemberRole | null;
 };
 
 export async function fetchSpaces(token: string): Promise<Space[]> {
