@@ -168,7 +168,6 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
                 </button>
               </form>
             </div>
-            </div>
           </div>
           </div>
         </>
