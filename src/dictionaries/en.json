@@ -1,0 +1,67 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "confirm": "Confirm"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "login_title": "Welcome back",
+    "register_title": "Create your family space",
+    "no_account": "Don't have an account?",
+    "have_account": "Already have an account?",
+    "invalid_credentials": "Invalid email or password"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "my_tasks": "My Tasks",
+    "all_tasks": "All Tasks",
+    "family": "Family"
+  },
+  "spaces": {
+    "title": "Spaces",
+    "create": "New Space",
+    "empty": "No spaces yet",
+    "name_placeholder": "Space name",
+    "emoji_placeholder": "Emoji (optional)"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "create": "New Task",
+    "empty": "No tasks yet",
+    "title_placeholder": "Task title",
+    "description_placeholder": "Description (optional)",
+    "due_date": "Due date",
+    "assignee": "Assignee",
+    "priority": "Priority",
+    "points": "Points",
+    "status": {
+      "backlog": "Backlog",
+      "todo": "To Do",
+      "in_progress": "In Progress",
+      "blocked": "Blocked",
+      "done": "Done"
+    },
+    "priority_values": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "profile": "Profile"
+  }
+}

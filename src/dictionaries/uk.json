@@ -1,0 +1,67 @@
+{
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Щось пішло не так",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "edit": "Редагувати",
+    "create": "Створити",
+    "back": "Назад",
+    "confirm": "Підтвердити"
+  },
+  "auth": {
+    "login": "Увійти",
+    "register": "Реєстрація",
+    "logout": "Вийти",
+    "email": "Email",
+    "password": "Пароль",
+    "name": "Ім'я",
+    "login_title": "З поверненням",
+    "register_title": "Створи сімейний простір",
+    "no_account": "Немає акаунту?",
+    "have_account": "Вже є акаунт?",
+    "invalid_credentials": "Невірний email або пароль"
+  },
+  "dashboard": {
+    "title": "Дашборд",
+    "my_tasks": "Мої задачі",
+    "all_tasks": "Всі задачі",
+    "family": "Сім'я"
+  },
+  "spaces": {
+    "title": "Простори",
+    "create": "Новий простір",
+    "empty": "Просторів ще немає",
+    "name_placeholder": "Назва простору",
+    "emoji_placeholder": "Emoji (необов'язково)"
+  },
+  "tasks": {
+    "title": "Задачі",
+    "create": "Нова задача",
+    "empty": "Задач ще немає",
+    "title_placeholder": "Назва задачі",
+    "description_placeholder": "Опис (необов'язково)",
+    "due_date": "Дедлайн",
+    "assignee": "Виконавець",
+    "priority": "Пріоритет",
+    "points": "Бали",
+    "status": {
+      "backlog": "Беклог",
+      "todo": "До виконання",
+      "in_progress": "В роботі",
+      "blocked": "Заблоковано",
+      "done": "Виконано"
+    },
+    "priority_values": {
+      "low": "Низький",
+      "medium": "Середній",
+      "high": "Високий"
+    }
+  },
+  "settings": {
+    "title": "Налаштування",
+    "language": "Мова",
+    "profile": "Профіль"
+  }
+}
