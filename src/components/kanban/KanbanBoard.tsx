@@ -206,6 +206,11 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
       {viewingTask && !editingTask && (
         <TaskViewSheet
           task={viewingTask}
+          token={token}
+          onUpdated={(updated) => {
+            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+            setViewingTask(updated);
+          }}
           onEdit={() => setEditingTask(viewingTask)}
           onClose={() => setViewingTask(null)}
         />
