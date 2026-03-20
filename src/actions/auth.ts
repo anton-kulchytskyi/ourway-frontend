@@ -16,6 +16,7 @@ export async function loginAction(
 ) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const redirectTo = formData.get("redirect") as string | null;
 
   try {
     const data = await apiFetch<TokenResponse>("/auth/login", {
@@ -28,7 +29,7 @@ export async function loginAction(
     return { error: e.detail ?? "Login failed" };
   }
 
-  redirect(`/${locale}`);
+  redirect(redirectTo ? `/${locale}${redirectTo}` : `/${locale}`);
 }
 
 export async function registerAction(
@@ -39,6 +40,7 @@ export async function registerAction(
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const name = formData.get("name") as string;
+  const redirectTo = formData.get("redirect") as string | null;
 
   try {
     const data = await apiFetch<TokenResponse>("/auth/register", {
@@ -51,7 +53,7 @@ export async function registerAction(
     return { error: e.detail ?? "Registration failed" };
   }
 
-  redirect(`/${locale}`);
+  redirect(redirectTo ? `/${locale}${redirectTo}` : `/${locale}`);
 }
 
 export async function logoutAction(locale: string) {

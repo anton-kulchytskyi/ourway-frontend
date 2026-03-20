@@ -1,12 +1,14 @@
 "use client";
 
 import { useActionState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { loginAction } from "@/actions/auth";
 
 export default function LoginPage() {
   const { lang } = useParams<{ lang: string }>();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "";
   const boundAction = loginAction.bind(null, lang);
   const [state, action, pending] = useActionState(boundAction, undefined);
 
@@ -16,6 +18,8 @@ export default function LoginPage() {
         <h1 className="mb-8 text-center text-2xl font-bold">OurWay</h1>
 
         <form action={action} className="space-y-4">
+          {redirect && <input type="hidden" name="redirect" value={redirect} />}
+
           {state?.error && (
             <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-950 dark:text-red-400">
               {state.error}
@@ -49,7 +53,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
+            className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50"
           >
             {pending ? "..." : "Login"}
           </button>
@@ -57,7 +61,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-zinc-500">
           Don&apos;t have an account?{" "}
-          <Link href={`/${lang}/register`} className="font-medium text-amber-600 underline dark:text-amber-400">
+          <Link
+            href={`/${lang}/register${redirect ? `?redirect=${redirect}` : ""}`}
+            className="font-medium text-amber-600 underline dark:text-amber-400"
+          >
             Register
           </Link>
         </p>
