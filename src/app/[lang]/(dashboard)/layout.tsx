@@ -22,11 +22,11 @@ export default async function DashboardLayout({
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <span className="font-bold">OurWay</span>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-zinc-500">{user.name}</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">{user.name}</span>
             <form action={logout}>
               <button
                 type="submit"
-                className="rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
               >
                 Logout
               </button>
