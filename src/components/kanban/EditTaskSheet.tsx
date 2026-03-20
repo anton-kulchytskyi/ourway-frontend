@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import type { Task, TaskPriority } from "@/lib/tasks";
-import { updateTask, deleteTask } from "@/lib/tasks";
+import type { Task, TaskPriority, TaskStatus } from "@/lib/tasks";
+import { updateTask, deleteTask, STATUS_LABELS } from "@/lib/tasks";
 
 type Props = {
   task: Task;
@@ -30,6 +30,7 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
     const data = {
       title: fd.get("title") as string,
       description: (fd.get("description") as string) || null,
+      status: fd.get("status") as TaskStatus,
       priority: fd.get("priority") as TaskPriority,
       points: Number(fd.get("points") || 0),
       due_date: (fd.get("due_date") as string) || null,
@@ -103,7 +104,20 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
               className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
             />
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-stone-500">Status</label>
+                <select
+                  name="status"
+                  defaultValue={task.status}
+                  className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800"
+                >
+                  {(Object.entries(STATUS_LABELS) as [TaskStatus, string][]).map(([val, label]) => (
+                    <option key={val} value={val}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="mb-1 block text-xs font-medium text-stone-500">Priority</label>
                 <select
@@ -116,6 +130,9 @@ export default function EditTaskSheet({ task, token, onUpdated, onDeleted, onClo
                   <option value="high">High</option>
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-stone-500">Points</label>

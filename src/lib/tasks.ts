@@ -53,7 +53,7 @@ export async function updateTaskStatus(token: string, taskId: number, status: Ta
 export async function updateTask(
   token: string,
   taskId: number,
-  data: Partial<Pick<Task, "title" | "description" | "priority" | "points" | "due_date">>
+  data: Partial<Pick<Task, "title" | "description" | "status" | "priority" | "points" | "due_date">>
 ): Promise<Task> {
   return apiFetch<Task>(`/tasks/${taskId}`, {
     method: "PATCH",

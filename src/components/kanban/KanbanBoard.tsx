@@ -20,6 +20,7 @@ import TaskCard from "./TaskCard";
 import CreateTaskSheet from "./CreateTaskSheet";
 import EditTaskSheet from "./EditTaskSheet";
 import TaskViewSheet from "./TaskViewSheet";
+import KanbanAccordion from "./KanbanAccordion";
 
 type Props = {
   initialTasks: Task[];
@@ -143,7 +144,14 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
         </div>
       )}
 
-      {/* Board */}
+      {/* Mobile: accordion */}
+      {spaces.length > 0 && (
+        <div className="md:hidden">
+          <KanbanAccordion tasksByStatus={tasksByStatus} onViewTask={setViewingTask} />
+        </div>
+      )}
+
+      {/* Desktop: Kanban board */}
       {spaces.length > 0 && (
         <DndContext
           sensors={sensors}
@@ -155,7 +163,7 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-3 overflow-x-auto pb-4">
+          <div className="hidden md:flex gap-3 overflow-x-auto pb-4">
             {STATUSES.map((status) => (
               <KanbanColumn key={status} status={status} tasks={tasksByStatus[status]} onViewTask={setViewingTask} />
             ))}
