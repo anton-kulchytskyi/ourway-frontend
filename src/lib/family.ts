@@ -25,6 +25,10 @@ export async function createChild(
   });
 }
 
+export async function deleteChild(token: string, childId: number): Promise<void> {
+  return apiFetch<void>(`/users/children/${childId}`, { method: "DELETE", token });
+}
+
 export async function updateChildAutonomy(
   token: string,
   childId: number,

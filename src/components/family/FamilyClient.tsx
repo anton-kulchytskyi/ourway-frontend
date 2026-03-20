@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import type { FamilyMember } from "@/lib/family";
-import { createChild, updateChildAutonomy } from "@/lib/family";
+import { createChild, updateChildAutonomy, deleteChild } from "@/lib/family";
 import { useDict } from "@/lib/useDict";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 type Props = {
   initialMembers: FamilyMember[];
@@ -29,6 +30,8 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [confirmDeleteChild, setConfirmDeleteChild] = useState<FamilyMember | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -57,6 +60,18 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
       setMembers((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  async function handleDeleteChild() {
+    if (!confirmDeleteChild) return;
+    setDeletingId(confirmDeleteChild.id);
+    setConfirmDeleteChild(null);
+    try {
+      await deleteChild(token, confirmDeleteChild.id);
+      setMembers((prev) => prev.filter((m) => m.id !== confirmDeleteChild.id));
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -166,6 +181,16 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
                   <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-500 dark:bg-stone-700">
                     {autonomyLabels[String(child.autonomy_level)]}
                   </span>
+                )}
+
+                {isOwner && (
+                  <button
+                    onClick={() => setConfirmDeleteChild(child)}
+                    disabled={deletingId === child.id}
+                    className="mt-3 w-full rounded-xl border border-red-200 py-2 text-xs font-medium text-red-500 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950 disabled:opacity-50 transition-colors"
+                  >
+                    {t.deleteChild}
+                  </button>
                 )}
               </div>
             ))}
@@ -288,6 +313,18 @@ export default function FamilyClient({ initialMembers, token, isOwner, currentUs
             </div>
           </div>
         </>
+      )}
+
+      {confirmDeleteChild && (
+        <ConfirmModal
+          title={t.deleteChildTitle}
+          message={t.deleteChildConfirm}
+          confirmLabel={dict.common.delete}
+          cancelLabel={dict.common.cancel}
+          danger
+          onConfirm={handleDeleteChild}
+          onCancel={() => setConfirmDeleteChild(null)}
+        />
       )}
     </div>
   );
