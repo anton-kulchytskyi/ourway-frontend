@@ -30,7 +30,7 @@ export default function RegisterPage() {
               type="text"
               required
               autoComplete="name"
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-amber-400 dark:border-stone-700 dark:bg-stone-900"
             />
           </div>
 
@@ -42,7 +42,7 @@ export default function RegisterPage() {
               type="email"
               required
               autoComplete="email"
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-amber-400 dark:border-stone-700 dark:bg-stone-900"
             />
           </div>
 
@@ -54,14 +54,14 @@ export default function RegisterPage() {
               type="password"
               required
               autoComplete="new-password"
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-amber-400 dark:border-stone-700 dark:bg-stone-900"
             />
           </div>
 
           <button
             type="submit"
             disabled={pending}
-            className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
           >
             {pending ? "..." : "Create account"}
           </button>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
         <p className="mt-6 text-center text-sm text-zinc-500">
           Already have an account?{" "}
-          <Link href={`/${lang}/login`} className="font-medium text-zinc-900 underline dark:text-white">
+          <Link href={`/${lang}/login`} className="font-medium text-amber-600 underline dark:text-amber-400">
             Login
           </Link>
         </p>

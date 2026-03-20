@@ -18,15 +18,15 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
+      <header className="sticky top-0 z-10 border-b border-amber-200 bg-amber-50/90 backdrop-blur dark:border-amber-900 dark:bg-stone-950/90">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <span className="font-bold">OurWay</span>
+          <span className="font-bold text-amber-600 dark:text-amber-400">OurWay</span>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">{user.name}</span>
+            <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{user.name}</span>
             <form action={logout}>
               <button
                 type="submit"
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-stone-600 hover:bg-amber-100 dark:text-stone-300 dark:hover:bg-stone-800"
               >
                 Logout
               </button>

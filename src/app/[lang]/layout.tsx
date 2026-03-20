@@ -27,7 +27,7 @@ export default async function LangLayout({
 
   return (
     <html lang={lang} className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50">
+      <body className="min-h-full flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-50">
         {children}
       </body>
     </html>
