@@ -20,7 +20,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar lang={lang} userName={user.name} logoutAction={logout} />
+      <Sidebar lang={lang} userName={user.name} userRole={user.role} logoutAction={logout} />
 
       <div className="flex flex-1 flex-col md:ml-56">
         {/* Mobile header */}
@@ -33,7 +33,7 @@ export default async function DashboardLayout({
         </main>
       </div>
 
-      <BottomNav lang={lang} />
+      <BottomNav lang={lang} userRole={user.role} />
     </div>
   );
 }
