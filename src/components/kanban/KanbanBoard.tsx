@@ -19,6 +19,7 @@ import KanbanColumn from "./KanbanColumn";
 import TaskCard from "./TaskCard";
 import CreateTaskSheet from "./CreateTaskSheet";
 import EditTaskSheet from "./EditTaskSheet";
+import TaskViewSheet from "./TaskViewSheet";
 
 type Props = {
   initialTasks: Task[];
@@ -31,6 +32,7 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedSpace, setSelectedSpace] = useState<number | null>(spaces[0]?.id ?? null);
   const [showCreate, setShowCreate] = useState(false);
+  const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const isDragging = useRef(false);
@@ -155,7 +157,7 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
         >
           <div className="flex gap-3 overflow-x-auto pb-4">
             {STATUSES.map((status) => (
-              <KanbanColumn key={status} status={status} tasks={tasksByStatus[status]} onEditTask={setEditingTask} />
+              <KanbanColumn key={status} status={status} tasks={tasksByStatus[status]} onViewTask={setViewingTask} />
             ))}
           </div>
 
@@ -192,13 +194,28 @@ export default function KanbanBoard({ initialTasks, spaces, token }: Props) {
         />
       )}
 
+      {/* View sheet */}
+      {viewingTask && !editingTask && (
+        <TaskViewSheet
+          task={viewingTask}
+          onEdit={() => setEditingTask(viewingTask)}
+          onClose={() => setViewingTask(null)}
+        />
+      )}
+
       {/* Edit sheet */}
       {editingTask && (
         <EditTaskSheet
           task={editingTask}
           token={token}
-          onUpdated={(updated) => setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))}
-          onDeleted={(id) => setTasks((prev) => prev.filter((t) => t.id !== id))}
+          onUpdated={(updated) => {
+            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+            setViewingTask(null);
+          }}
+          onDeleted={(id) => {
+            setTasks((prev) => prev.filter((t) => t.id !== id));
+            setViewingTask(null);
+          }}
           onClose={() => setEditingTask(null)}
         />
       )}

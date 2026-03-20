@@ -12,10 +12,10 @@ const PRIORITY_COLORS = {
 
 type Props = {
   task: Task;
-  onEdit?: () => void;
+  onView?: () => void;
 };
 
-export default function TaskCard({ task, onEdit }: Props) {
+export default function TaskCard({ task, onView }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 
@@ -32,24 +32,18 @@ export default function TaskCard({ task, onEdit }: Props) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => !isDragging && onView?.()}
       className="rounded-xl border border-stone-200 bg-white p-3 shadow-sm cursor-grab active:cursor-grabbing dark:border-stone-700 dark:bg-stone-800 select-none"
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium text-stone-800 dark:text-stone-100 leading-snug flex-1">
-          {task.title}
+      <p className="text-sm font-medium text-stone-800 dark:text-stone-100 leading-snug">
+        {task.title}
+      </p>
+
+      {task.description && (
+        <p className="mt-1 text-xs text-stone-400 dark:text-stone-500 leading-snug line-clamp-2">
+          {task.description}
         </p>
-        {onEdit && (
-          <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className="shrink-0 rounded-lg p-1 text-stone-300 hover:bg-stone-100 hover:text-stone-500 dark:hover:bg-stone-700 dark:hover:text-stone-300 transition-colors"
-          >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
-            </svg>
-          </button>
-        )}
-      </div>
+      )}
 
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${PRIORITY_COLORS[task.priority]}`}>
