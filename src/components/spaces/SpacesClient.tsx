@@ -105,13 +105,10 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
       {/* Create sheet */}
       {showCreate && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setShowCreate(false)} />
-          <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white dark:bg-stone-900 shadow-xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-sm md:rounded-2xl">
-            <div className="flex justify-center pt-3 pb-1 md:hidden">
-              <div className="h-1 w-10 rounded-full bg-stone-300 dark:bg-stone-600" />
-            </div>
-
-            <div className="px-5 pb-6 pt-3">
+          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCreate(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 shadow-xl max-h-[90dvh] flex flex-col pointer-events-auto">
+            <div className="overflow-y-auto px-5 pb-6 pt-5">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold">New Space</h2>
                 <button
@@ -171,7 +168,8 @@ export default function SpacesClient({ initialSpaces, token, lang }: Props) {
                 </button>
               </form>
             </div>
-            <div className="h-safe-bottom md:hidden" />
+            </div>
+          </div>
           </div>
         </>
       )}
