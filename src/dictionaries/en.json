@@ -131,5 +131,30 @@
     "404message": "This page doesn't exist or was moved.",
     "500title": "Something went wrong",
     "500message": "An unexpected error occurred. Try again or go back home."
+  },
+  "landing": {
+    "tagline": "Family task manager for everyone",
+    "description": "Kanban board, Telegram bot and gamification for kids — all in one place.",
+    "ctaWeb": "Open Web App",
+    "ctaTelegram": "Open in Telegram",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "features": [
+      {
+        "icon": "📋",
+        "title": "Kanban for family",
+        "description": "Shared boards, spaces for every area of life. Everyone sees what needs to be done."
+      },
+      {
+        "icon": "🤖",
+        "title": "Telegram first",
+        "description": "Add tasks, check status and get notifications without leaving Telegram."
+      },
+      {
+        "icon": "⭐",
+        "title": "Kids love it",
+        "description": "Points, streaks and rewards make chores fun. Safe — children can't bypass screen time limits."
+      }
+    ]
   }
 }
