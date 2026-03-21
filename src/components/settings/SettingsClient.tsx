@@ -99,7 +99,7 @@ export default function SettingsClient({ user, lang, t, logoutAction, deleteAcco
               {t.logout}
             </button>
           </form>
-          {user.role === "owner" && (
+          {user.role !== "child" && (
             <button
               onClick={() => setConfirmDelete(true)}
               className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
