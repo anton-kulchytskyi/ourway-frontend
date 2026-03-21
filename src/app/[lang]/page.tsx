@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getDictionary, hasLocale } from "./dictionaries";
+import LangSwitcher from "@/components/ui/LangSwitcher";
 
 const TG_BOT_URL = "https://t.me/ourway_tasks_bot";
 
@@ -18,12 +19,15 @@ export default async function LandingPage({
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
         <span className="text-xl font-bold text-amber-600 dark:text-amber-400">OurWay</span>
-        <Link
-          href={`/${lang}/login`}
-          className="text-sm font-medium text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-400"
-        >
-          {t.signIn}
-        </Link>
+        <div className="flex items-center gap-4">
+          <LangSwitcher lang={lang} />
+          <Link
+            href={`/${lang}/login`}
+            className="text-sm font-medium text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-400"
+          >
+            {t.signIn}
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}
