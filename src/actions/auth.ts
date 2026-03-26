@@ -29,7 +29,7 @@ export async function loginAction(
     return { error: e.detail ?? "Login failed" };
   }
 
-  redirect(redirectTo ? `/${locale}${redirectTo}` : `/${locale}`);
+  redirect(redirectTo ? `/${locale}${redirectTo}` : `/${locale}/tasks`);
 }
 
 export async function registerAction(
@@ -53,7 +53,7 @@ export async function registerAction(
     return { error: e.detail ?? "Registration failed" };
   }
 
-  redirect(redirectTo ? `/${locale}${redirectTo}` : `/${locale}`);
+  redirect(redirectTo ? `/${locale}${redirectTo}` : `/${locale}/tasks`);
 }
 
 export async function logoutAction(locale: string) {
