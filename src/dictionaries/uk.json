@@ -1,9 +1,27 @@
 {
   "nav": {
+    "today": "Сьогодні",
     "tasks": "Задачі",
     "spaces": "Простори",
     "family": "Сім'я",
     "settings": "Налаштування"
+  },
+  "today": {
+    "title": "Сьогодні",
+    "planStatus": {
+      "draft": "В процесі",
+      "confirmed": "Підтверджено",
+      "completed": "Завершено"
+    },
+    "confirmPlan": "Підтвердити план",
+    "confirming": "Підтвердження...",
+    "schedule": "Розклад",
+    "events": "Події",
+    "tasks": "Задачі",
+    "nothingPlanned": "На сьогодні нічого не заплановано",
+    "me": "Я",
+    "markDone": "Виконано",
+    "loadError": "Не вдалось завантажити план на сьогодні."
   },
   "settings": {
     "title": "Налаштування",

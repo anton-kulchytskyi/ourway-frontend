@@ -9,13 +9,13 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-type NavDict = { tasks: string; spaces: string; family: string; settings: string };
+type NavDict = { today: string; tasks: string; spaces: string; family: string; settings: string };
 type Props = { lang: string; userRole: string; nav: NavDict };
 
-function HomeIcon() {
+function TodayIcon() {
   return (
     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
     </svg>
   );
 }
@@ -57,6 +57,7 @@ export default function BottomNav({ lang, userRole, nav }: Props) {
   const pathname = usePathname();
 
   const items: NavItem[] = [
+    { href: `/${lang}/today`, label: nav.today, icon: <TodayIcon /> },
     { href: `/${lang}/tasks`, label: nav.tasks, icon: <TasksIcon /> },
     { href: `/${lang}/spaces`, label: nav.spaces, icon: <SpacesIcon /> },
     ...(userRole === "owner" ? [{ href: `/${lang}/family`, label: nav.family, icon: <FamilyIcon /> }] : []),

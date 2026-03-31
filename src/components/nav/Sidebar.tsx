@@ -3,8 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type NavDict = { tasks: string; spaces: string; family: string; settings: string };
+type NavDict = { today: string; tasks: string; spaces: string; family: string; settings: string };
 type Props = { lang: string; userName: string; userRole: string; logoutAction: () => Promise<void>; nav: NavDict };
+
+const TODAY_ICON = (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+  </svg>
+);
 
 const TASK_ICON = (
   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -35,6 +41,7 @@ export default function Sidebar({ lang, userName, userRole, logoutAction, nav }:
   const pathname = usePathname();
 
   const items = [
+    { href: `/${lang}/today`, label: nav.today, icon: TODAY_ICON },
     { href: `/${lang}/tasks`, label: nav.tasks, icon: TASK_ICON },
     { href: `/${lang}/spaces`, label: nav.spaces, icon: SPACES_ICON },
     ...(userRole === "owner" ? [{ href: `/${lang}/family`, label: nav.family, icon: FAMILY_ICON }] : []),

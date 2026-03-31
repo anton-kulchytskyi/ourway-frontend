@@ -1,9 +1,27 @@
 {
   "nav": {
+    "today": "Today",
     "tasks": "Tasks",
     "spaces": "Spaces",
     "family": "Family",
     "settings": "Settings"
+  },
+  "today": {
+    "title": "Today",
+    "planStatus": {
+      "draft": "In progress",
+      "confirmed": "Confirmed",
+      "completed": "Complete"
+    },
+    "confirmPlan": "Confirm plan",
+    "confirming": "Confirming...",
+    "schedule": "Schedule",
+    "events": "Events",
+    "tasks": "Tasks",
+    "nothingPlanned": "Nothing planned for today",
+    "me": "Me",
+    "markDone": "Done",
+    "loadError": "Could not load today's plan."
   },
   "settings": {
     "title": "Settings",
