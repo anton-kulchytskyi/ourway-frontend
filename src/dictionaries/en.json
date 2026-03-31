@@ -4,6 +4,7 @@
     "tasks": "Tasks",
     "spaces": "Spaces",
     "family": "Family",
+    "schedule": "Schedule",
     "settings": "Settings"
   },
   "today": {
@@ -132,6 +133,34 @@
       "1": "Parent sees all spaces",
       "2": "Parent can join spaces manually",
       "3": "Full privacy"
+    }
+  },
+  "schedule": {
+    "title": "Schedule",
+    "addEntry": "Add Entry",
+    "noEntries": "No schedule entries yet.",
+    "entryTitle": "Title",
+    "entryTitlePlaceholder": "School, Football, Gym...",
+    "weekdays": "Days of the week",
+    "timeStart": "Start time",
+    "timeEnd": "End time",
+    "validFrom": "From date (optional)",
+    "validUntil": "Until date (optional)",
+    "forWhom": "For",
+    "me": "Me",
+    "createEntry": "Add",
+    "creating": "Adding...",
+    "deleteConfirmTitle": "Delete schedule entry?",
+    "deleteConfirmSuffix": "will be removed from the schedule.",
+    "loadError": "Could not load schedule.",
+    "days": {
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat",
+      "7": "Sun"
     }
   },
   "common": {
