@@ -1,4 +1,5 @@
 import { apiFetch } from "./api";
+export type { Space } from "./spaces";
 
 export type TaskStatus = "backlog" | "todo" | "in_progress" | "blocked" | "done";
 export type TaskPriority = "low" | "medium" | "high";
@@ -14,14 +15,6 @@ export type Task = {
   space_id: number;
   creator_id: number;
   assignee_id: number | null;
-};
-
-export type Space = {
-  id: number;
-  name: string;
-  emoji: string | null;
-  organization_id: number;
-  my_role?: string | null;
 };
 
 export const STATUSES: TaskStatus[] = ["backlog", "todo", "in_progress", "blocked", "done"];
