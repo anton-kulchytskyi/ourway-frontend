@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getDictionary, hasLocale } from "./dictionaries";
 import LangSwitcher from "@/components/ui/LangSwitcher";
 import { getSession } from "@/lib/session";
 
-const TG_BOT_URL = "https://t.me/ourway_tasks_bot";
+const TG_BOT_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/ourway_tasks_bot";
 
 export default async function LandingPage({
   params,
@@ -12,9 +11,7 @@ export default async function LandingPage({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-
   const user = await getSession();
-  if (user) redirect(`/${lang}/today`);
   const locale = hasLocale(lang) ? lang : "en";
   const dict = await getDictionary(locale);
   const t = dict.landing;
@@ -23,15 +20,29 @@ export default async function LandingPage({
     <div className="flex min-h-screen flex-col bg-stone-50 dark:bg-stone-950">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
-        <span className="text-xl font-bold text-amber-600 dark:text-amber-400">OurWay</span>
+        <Link
+          href={`/${lang}`}
+          className="text-xl font-bold text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity"
+        >
+          OurWay
+        </Link>
         <div className="flex items-center gap-4">
           <LangSwitcher lang={lang} />
-          <Link
-            href={`/${lang}/login`}
-            className="text-sm font-medium text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-400"
-          >
-            {t.signIn}
-          </Link>
+          {user ? (
+            <Link
+              href={`/${lang}/today`}
+              className="text-sm font-medium text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-400"
+            >
+              {user.name}
+            </Link>
+          ) : (
+            <Link
+              href={`/${lang}/login`}
+              className="text-sm font-medium text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-400"
+            >
+              {t.signIn}
+            </Link>
+          )}
         </div>
       </header>
 
@@ -53,35 +64,34 @@ export default async function LandingPage({
         </p>
 
         {/* CTAs */}
-        <div className="flex w-full max-w-xs flex-col gap-3 sm:flex-row sm:max-w-sm">
+        {user ? (
           <Link
-            href={`/${lang}/register`}
-            className="flex flex-1 items-center justify-center rounded-xl bg-amber-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-400 active:scale-95"
+            href={`/${lang}/today`}
+            className="flex items-center justify-center rounded-xl bg-amber-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-400 active:scale-95"
           >
-            {t.ctaWeb}
+            {lang === "uk" ? "Відкрити додаток" : "Open App"}
           </Link>
-          <a
-            href={TG_BOT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-800 shadow-sm transition hover:border-amber-300 hover:bg-amber-50 active:scale-95 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200 dark:hover:border-amber-700 dark:hover:bg-stone-800"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-sky-500" aria-hidden>
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" />
-            </svg>
-            {t.ctaTelegram}
-          </a>
-        </div>
-
-        <p className="mt-6 text-sm text-stone-400 dark:text-stone-500">
-          {t.alreadyHaveAccount}{" "}
-          <Link
-            href={`/${lang}/login`}
-            className="font-medium text-amber-600 underline-offset-2 hover:underline dark:text-amber-400"
-          >
-            {t.signIn}
-          </Link>
-        </p>
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <a
+              href={TG_BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#2AABEE] px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1a96d9] active:scale-95"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white" aria-hidden>
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" />
+              </svg>
+              {t.ctaTelegram}
+            </a>
+            <Link
+              href={`/${lang}/login`}
+              className="text-sm text-stone-400 hover:text-amber-600 dark:text-stone-500 dark:hover:text-amber-400 transition-colors"
+            >
+              {t.signIn}
+            </Link>
+          </div>
+        )}
 
         {/* Features */}
         <div className="mt-20 grid w-full max-w-2xl gap-4 sm:grid-cols-3">

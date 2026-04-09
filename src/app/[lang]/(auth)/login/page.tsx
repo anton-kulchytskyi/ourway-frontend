@@ -12,7 +12,24 @@ export default async function LoginPage({
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="flex w-full max-w-sm flex-col items-center gap-8">
-        <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">OurWay</span>
+        <div className="flex w-full items-center justify-between">
+          <Link
+            href={`/${lang}`}
+            className="flex items-center gap-1 text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            {lang === "uk" ? "Назад" : "Back"}
+          </Link>
+          <Link
+            href={`/${lang}`}
+            className="text-2xl font-bold text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity"
+          >
+            OurWay
+          </Link>
+          <div className="w-14" />
+        </div>
 
         <div className="flex flex-col items-center gap-4 text-center">
           <p className="text-sm text-stone-500 dark:text-stone-400">
