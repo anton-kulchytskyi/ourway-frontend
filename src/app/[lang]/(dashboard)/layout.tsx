@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { logoutAction } from "@/actions/auth";
@@ -28,7 +29,7 @@ export default async function DashboardLayout({
       <div className="flex flex-1 flex-col md:ml-56">
         {/* Mobile header */}
         <header className="sticky top-0 z-10 flex h-14 items-center border-b border-amber-200 bg-amber-50/95 px-4 backdrop-blur md:hidden dark:border-amber-900 dark:bg-stone-950/95">
-          <span className="font-bold text-amber-600 dark:text-amber-400">OurWay</span>
+          <Link href={`/${lang}`} className="font-bold text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity">OurWay</Link>
         </header>
 
         <main className="flex-1 px-4 py-6 pb-24 md:pb-6">

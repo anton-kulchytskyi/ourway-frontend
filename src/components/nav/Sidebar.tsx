@@ -58,7 +58,9 @@ export default function Sidebar({ lang, userName, userRole, logoutAction, nav }:
   return (
     <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 border-r border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-stone-900">
       <div className="flex h-16 items-center px-6 border-b border-amber-200 dark:border-amber-900">
-        <span className="text-lg font-bold text-amber-600 dark:text-amber-400">OurWay</span>
+        <Link href={`/${lang}`} className="text-lg font-bold text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity">
+          OurWay
+        </Link>
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">

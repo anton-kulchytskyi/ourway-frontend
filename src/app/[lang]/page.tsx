@@ -84,12 +84,6 @@ export default async function LandingPage({
               </svg>
               {t.ctaTelegram}
             </a>
-            <Link
-              href={`/${lang}/login`}
-              className="text-sm text-stone-400 hover:text-amber-600 dark:text-stone-500 dark:hover:text-amber-400 transition-colors"
-            >
-              {t.signIn}
-            </Link>
           </div>
         )}
 
