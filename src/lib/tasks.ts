@@ -1,5 +1,6 @@
 import { apiFetch } from "./api";
-export type { Space } from "./spaces";
+import type { Space } from "./spaces";
+export type { Space };
 
 export type TaskStatus = "backlog" | "todo" | "in_progress" | "blocked" | "done";
 export type TaskPriority = "low" | "medium" | "high";
