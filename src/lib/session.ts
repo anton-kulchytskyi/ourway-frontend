@@ -7,7 +7,7 @@ const REFRESH_COOKIE = "refresh_token";
 
 export type SessionUser = {
   id: number;
-  email: string;
+  email: string | null;
   name: string;
   role: "owner" | "member" | "child";
   locale: string;
@@ -45,10 +45,14 @@ export async function getAccessToken(): Promise<string | undefined> {
 
 export async function getSession(): Promise<SessionUser | null> {
   const token = await getAccessToken();
+  console.log("[getSession] token:", token ? token.slice(0, 20) + "..." : "missing");
   if (!token) return null;
   try {
-    return await apiFetch<SessionUser>("/auth/me", { token });
-  } catch {
+    const user = await apiFetch<SessionUser>("/auth/me", { token });
+    console.log("[getSession] user:", user?.id, user?.email);
+    return user;
+  } catch (err) {
+    console.error("[getSession] error:", err);
     return null;
   }
 }
