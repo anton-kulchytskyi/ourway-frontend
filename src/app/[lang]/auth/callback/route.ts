@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { NextRequest, NextResponse } from "next/server";
 import { apiFetch } from "@/lib/api";
 import { setSession } from "@/lib/session";
 
@@ -7,18 +7,16 @@ type TokenResponse = {
   refresh_token: string;
 };
 
-export default async function AuthCallbackPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ lang: string }>;
-  searchParams: Promise<{ token?: string }>;
-}) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ lang: string }> }
+) {
   const { lang } = await params;
-  const { token } = await searchParams;
+  const token = request.nextUrl.searchParams.get("token");
+  const loginUrl = new URL(`/${lang}/login`, request.url);
 
   if (!token) {
-    redirect(`/${lang}/login`);
+    return NextResponse.redirect(loginUrl);
   }
 
   try {
@@ -29,8 +27,8 @@ export default async function AuthCallbackPage({
     await setSession(data.access_token, data.refresh_token);
   } catch (err) {
     console.error("[auth/callback] error:", err);
-    redirect(`/${lang}/login`);
+    return NextResponse.redirect(loginUrl);
   }
 
-  redirect(`/${lang}/today`);
+  return NextResponse.redirect(new URL(`/${lang}/today`, request.url));
 }
