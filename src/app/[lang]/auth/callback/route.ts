@@ -16,6 +16,8 @@ export async function GET(
   const token = request.nextUrl.searchParams.get("token");
   const loginUrl = new URL(`/${lang}/login`, request.url);
 
+  console.log("[auth/callback] lang:", lang, "token:", token ? token.slice(0, 20) + "..." : "missing");
+
   if (!token) {
     return NextResponse.redirect(loginUrl);
   }
