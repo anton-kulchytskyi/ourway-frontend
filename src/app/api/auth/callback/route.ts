@@ -8,18 +8,14 @@ type TokenResponse = {
 
 const isProduction = process.env.NODE_ENV === "production";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ lang: string }> }
-) {
-  const { lang } = await params;
+export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
-  const loginUrl = new URL(`/${lang}/login`, request.url);
+  const baseUrl = request.nextUrl.origin;
 
-  console.log("[auth/callback] lang:", lang, "token:", token ? token.slice(0, 20) + "..." : "missing");
+  console.log("[api/auth/callback] token:", token ? token.slice(0, 20) + "..." : "missing");
 
   if (!token) {
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(new URL("/en/login", baseUrl));
   }
 
   let data: TokenResponse;
@@ -29,11 +25,11 @@ export async function GET(
       body: JSON.stringify({ token }),
     });
   } catch (err) {
-    console.error("[auth/callback] error:", err);
-    return NextResponse.redirect(loginUrl);
+    console.error("[api/auth/callback] error:", err);
+    return NextResponse.redirect(new URL("/en/login", baseUrl));
   }
 
-  const response = NextResponse.redirect(new URL(`/${lang}/today`, request.url));
+  const response = NextResponse.redirect(new URL("/en/today", baseUrl));
   response.cookies.set("access_token", data.access_token, {
     httpOnly: true,
     secure: isProduction,
