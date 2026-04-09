@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiFetch } from "@/lib/api";
+import { ACCESS_COOKIE, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE, REFRESH_COOKIE_OPTIONS } from "@/lib/session";
 
 type TokenResponse = {
   access_token: string;
   refresh_token: string;
 };
 
-const isProduction = process.env.NODE_ENV === "production";
-
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
   const baseUrl = request.nextUrl.origin;
-
-  console.log("[api/auth/callback] token:", token ? token.slice(0, 20) + "..." : "missing");
 
   if (!token) {
     return NextResponse.redirect(new URL("/en/login", baseUrl));
@@ -24,25 +21,12 @@ export async function GET(request: NextRequest) {
       method: "POST",
       body: JSON.stringify({ token }),
     });
-  } catch (err) {
-    console.error("[api/auth/callback] error:", err);
+  } catch {
     return NextResponse.redirect(new URL("/en/login", baseUrl));
   }
 
   const response = NextResponse.redirect(new URL("/en/today", baseUrl));
-  response.cookies.set("access_token", data.access_token, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24,
-  });
-  response.cookies.set("refresh_token", data.refresh_token, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
+  response.cookies.set(ACCESS_COOKIE, data.access_token, ACCESS_COOKIE_OPTIONS);
+  response.cookies.set(REFRESH_COOKIE, data.refresh_token, REFRESH_COOKIE_OPTIONS);
   return response;
 }

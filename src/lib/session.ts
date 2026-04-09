@@ -2,8 +2,26 @@ import "server-only";
 import { cookies } from "next/headers";
 import { apiFetch } from "./api";
 
-const ACCESS_COOKIE = "access_token";
-const REFRESH_COOKIE = "refresh_token";
+export const ACCESS_COOKIE = "access_token";
+export const REFRESH_COOKIE = "refresh_token";
+
+const isProduction = process.env.NODE_ENV === "production";
+
+export const ACCESS_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 60 * 60 * 24, // 1 day
+};
+
+export const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 60 * 60 * 24 * 30, // 30 days
+};
 
 export type SessionUser = {
   id: number;
@@ -16,20 +34,8 @@ export type SessionUser = {
 
 export async function setSession(accessToken: string, refreshToken: string) {
   const jar = await cookies();
-  jar.set(ACCESS_COOKIE, accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24, // 1 day
-  });
-  jar.set(REFRESH_COOKIE, refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-  });
+  jar.set(ACCESS_COOKIE, accessToken, ACCESS_COOKIE_OPTIONS);
+  jar.set(REFRESH_COOKIE, refreshToken, REFRESH_COOKIE_OPTIONS);
 }
 
 export async function clearSession() {
