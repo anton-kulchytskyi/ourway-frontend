@@ -27,7 +27,8 @@ export default async function AuthCallbackPage({
       body: JSON.stringify({ token }),
     });
     await setSession(data.access_token, data.refresh_token);
-  } catch {
+  } catch (err) {
+    console.error("[auth/callback] error:", err);
     redirect(`/${lang}/login`);
   }
 
