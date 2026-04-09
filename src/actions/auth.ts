@@ -9,22 +9,6 @@ type TokenResponse = {
   refresh_token: string;
 };
 
-export async function telegramAuthAction(
-  locale: string,
-  tgData: Record<string, unknown>
-) {
-  try {
-    const data = await apiFetch<TokenResponse>("/auth/telegram-oauth", {
-      method: "POST",
-      body: JSON.stringify(tgData),
-    });
-    await setSession(data.access_token, data.refresh_token);
-    return { ok: true };
-  } catch (err: unknown) {
-    const e = err as { detail?: string };
-    return { error: e.detail ?? "Auth failed" };
-  }
-}
 
 export async function logoutAction(locale: string) {
   await clearSession();
