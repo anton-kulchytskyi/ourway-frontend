@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getDictionary, hasLocale } from "./dictionaries";
 import LangSwitcher from "@/components/ui/LangSwitcher";
+import { getSession } from "@/lib/session";
 
 const TG_BOT_URL = "https://t.me/ourway_tasks_bot";
 
@@ -10,6 +12,9 @@ export default async function LandingPage({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
+
+  const user = await getSession();
+  if (user) redirect(`/${lang}/today`);
   const locale = hasLocale(lang) ? lang : "en";
   const dict = await getDictionary(locale);
   const t = dict.landing;

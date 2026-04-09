@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiFetch } from "@/lib/api";
-import { setSession } from "@/lib/session";
 
 type TokenResponse = {
   access_token: string;
   refresh_token: string;
 };
+
+const isProduction = process.env.NODE_ENV === "production";
 
 export async function GET(
   request: NextRequest,
@@ -19,16 +20,31 @@ export async function GET(
     return NextResponse.redirect(loginUrl);
   }
 
+  let data: TokenResponse;
   try {
-    const data = await apiFetch<TokenResponse>("/auth/web-login", {
+    data = await apiFetch<TokenResponse>("/auth/web-login", {
       method: "POST",
       body: JSON.stringify({ token }),
     });
-    await setSession(data.access_token, data.refresh_token);
   } catch (err) {
     console.error("[auth/callback] error:", err);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.redirect(new URL(`/${lang}/today`, request.url));
+  const response = NextResponse.redirect(new URL(`/${lang}/today`, request.url));
+  response.cookies.set("access_token", data.access_token, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  });
+  response.cookies.set("refresh_token", data.refresh_token, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
+  return response;
 }
