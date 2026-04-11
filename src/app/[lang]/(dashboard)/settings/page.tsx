@@ -26,6 +26,7 @@ export default async function SettingsPage({
       user={user}
       lang={lang}
       t={dict.settings}
+      authToken={token}
       logoutAction={logout}
       deleteAccountAction={deleteAccount}
     />
