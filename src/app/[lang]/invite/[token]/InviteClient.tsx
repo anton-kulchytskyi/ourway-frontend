@@ -12,9 +12,10 @@ type Props = {
   inviteToken: string;
   authToken: string | null;
   lang: string;
+  botUrl: string;
 };
 
-export default function InviteClient({ info, error, inviteToken, authToken, lang }: Props) {
+export default function InviteClient({ info, error, inviteToken, authToken, lang, botUrl }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -92,20 +93,26 @@ export default function InviteClient({ info, error, inviteToken, authToken, lang
                 {loading ? "Joining..." : "Accept & Join"}
               </button>
             ) : (
-              <div className="space-y-3">
-                <p className="text-center text-sm text-stone-500">Sign in to accept this invitation</p>
-                <Link
-                  href={`/${lang}/login?redirect=/invite/${inviteToken}`}
-                  className="block w-full rounded-xl bg-amber-500 py-3 text-center text-sm font-semibold text-white transition hover:bg-amber-400"
+              <div className="space-y-4">
+                <p className="text-center text-sm text-stone-500">
+                  Open the link in Telegram to join:
+                </p>
+                <a
+                  href={`${botUrl}?start=inv_${inviteToken}`}
+                  className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#2AABEE] py-3 text-sm font-semibold text-white transition hover:bg-[#1a96d9]"
                 >
-                  Sign in
-                </Link>
-                <Link
-                  href={`/${lang}/register?redirect=/invite/${inviteToken}`}
-                  className="block w-full rounded-xl border border-stone-200 py-3 text-center text-sm font-medium text-stone-600 transition hover:bg-stone-50 dark:border-stone-700 dark:text-stone-300"
-                >
-                  Create account
-                </Link>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z"/>
+                  </svg>
+                  Join via Telegram
+                </a>
+                <p className="text-center text-xs text-stone-400">
+                  Already have an account?{" "}
+                  <Link href={`/${lang}/login`} className="text-amber-500 hover:underline">
+                    Sign in
+                  </Link>
+                  {" "}first, then open this link again.
+                </p>
               </div>
             )}
           </>

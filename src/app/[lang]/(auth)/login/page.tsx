@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const BOT_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/ourway_bot";
+const BOT_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/ourway_tasks_bot";
 
 export default async function LoginPage({
   params,

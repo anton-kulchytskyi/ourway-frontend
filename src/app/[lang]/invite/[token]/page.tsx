@@ -2,6 +2,8 @@ import { getAccessToken } from "@/lib/session";
 import { getInvitation } from "@/lib/invitations";
 import InviteClient from "./InviteClient";
 
+const BOT_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/ourway_tasks_bot";
+
 export default async function InvitePage({
   params,
 }: {
@@ -27,6 +29,7 @@ export default async function InvitePage({
       inviteToken={token}
       authToken={authToken}
       lang={lang}
+      botUrl={BOT_URL}
     />
   );
 }
