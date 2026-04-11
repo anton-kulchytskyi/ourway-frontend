@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
+import { getSession, getAccessToken } from "@/lib/session";
 import { logoutAction } from "@/actions/auth";
 import BottomNav from "@/components/nav/BottomNav";
 import Sidebar from "@/components/nav/Sidebar";
+import TimezoneDetector from "@/components/TimezoneDetector";
 import { getDictionary, hasLocale } from "@/app/[lang]/dictionaries";
 
 export default async function DashboardLayout({
@@ -14,7 +15,7 @@ export default async function DashboardLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const user = await getSession();
+  const [user, authToken] = await Promise.all([getSession(), getAccessToken()]);
 
   if (!user) redirect(`/${lang}/login`);
 
@@ -24,6 +25,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
+      {authToken && <TimezoneDetector authToken={authToken} />}
       <Sidebar lang={lang} userName={user.name} userRole={user.role} logoutAction={logout} nav={dict.nav} />
 
       <div className="flex flex-1 flex-col md:ml-56">
