@@ -27,7 +27,7 @@ const TIMEZONES = [
       "Europe/Riga", "Europe/Tallinn", "Europe/Vilnius",
     ],
   },
-  { group: "Europe (UTC+3)", options: ["Europe/Minsk", "Europe/Moscow"] },
+  { group: "Europe (UTC+3)", options: ["Europe/Minsk"] },
   {
     group: "Americas",
     options: ["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles"],
