@@ -65,18 +65,20 @@ export default function InviteClient({ info, error, inviteToken, authToken, lang
           <>
             <div className="rounded-xl bg-stone-50 dark:bg-stone-800 p-4 mb-6 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-stone-500">Space</span>
-                <span className="font-medium">{info?.space_name}</span>
+                <span className="text-stone-500">Family</span>
+                <span className="font-medium">{info?.org_name}</span>
               </div>
+              {info?.space_name && (
+                <div className="flex justify-between">
+                  <span className="text-stone-500">Space</span>
+                  <span className="font-medium">
+                    {info.space_emoji ? `${info.space_emoji} ` : ""}{info.space_name}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-stone-500">Invited by</span>
                 <span className="font-medium">{info?.invited_by_name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-500">Your role</span>
-                <span className={`font-medium capitalize ${info?.role === "editor" ? "text-amber-600" : "text-stone-500"}`}>
-                  {info?.role}
-                </span>
               </div>
             </div>
 

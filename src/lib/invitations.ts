@@ -4,10 +4,10 @@ export type InvitationRole = "editor" | "viewer";
 
 export type InvitationPublicInfo = {
   token: string;
-  space_name: string;
+  org_name: string;
+  space_name: string | null;
   space_emoji: string | null;
   invited_by_name: string;
-  role: InvitationRole;
   expires_at: string;
 };
 
