@@ -25,7 +25,13 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      {authToken && <TimezoneDetector authToken={authToken} />}
+      {authToken && (
+        <TimezoneDetector
+          authToken={authToken}
+          userId={user.id}
+          currentTimezone={user.timezone}
+        />
+      )}
       <Sidebar lang={lang} userName={user.name} userRole={user.role} logoutAction={logout} nav={dict.nav} />
 
       <div className="flex flex-1 flex-col md:ml-56">
