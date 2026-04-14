@@ -20,8 +20,9 @@ export default async function TodayPage({
 
   const dict = await getDictionary(locale);
 
-  // TODO: use user's timezone when timezone field is added to profile
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: user.timezone || "UTC",
+  }).format(new Date());
 
   const [myDay, familyDay] = await Promise.all([
     fetchDay(token, today).catch(() => null),
