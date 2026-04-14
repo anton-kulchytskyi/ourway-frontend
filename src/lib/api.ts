@@ -9,6 +9,7 @@ export async function apiFetch<T>(
   const { token, ...init } = options;
   const res = await fetch(`${API_URL}/api/v1${path}`, {
     ...init,
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

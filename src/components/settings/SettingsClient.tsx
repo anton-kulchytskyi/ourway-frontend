@@ -59,7 +59,7 @@ type Props = {
 
 export default function SettingsClient({ user, lang, t, authToken, logoutAction, deleteAccountAction }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [timezone, setTimezone] = useState(user.timezone ?? "UTC");
+  const [timezone, setTimezone] = useState(user.timezone || "UTC");
   const [tzStatus, setTzStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const router = useRouter();
   const pathname = usePathname();
@@ -78,7 +78,7 @@ export default function SettingsClient({ user, lang, t, authToken, logoutAction,
         token: authToken,
         body: JSON.stringify({ timezone: tz }),
       });
-      localStorage.setItem("ow_tz", tz);
+      localStorage.setItem(`ow_tz_${user.id}`, tz);
       setTzStatus("saved");
       setTimeout(() => setTzStatus("idle"), 2000);
     } catch {
