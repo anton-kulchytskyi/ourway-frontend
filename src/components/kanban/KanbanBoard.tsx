@@ -16,6 +16,7 @@ import {
 import { SortableContext } from "@dnd-kit/sortable";
 import type { Task, TaskStatus, Space } from "@/lib/tasks";
 import { STATUSES, updateTaskStatus, fetchTasks } from "@/lib/tasks";
+import type { FamilyMember } from "@/lib/family";
 import { useDict } from "@/lib/useDict";
 import KanbanColumn from "./KanbanColumn";
 import TaskCard from "./TaskCard";
@@ -30,9 +31,11 @@ type Props = {
   token: string;
   defaultSpaceId?: number | null;
   canDeleteTasks?: boolean;
+  familyMembers?: FamilyMember[];
+  currentUserId?: number;
 };
 
-export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId, canDeleteTasks = true }: Props) {
+export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId, canDeleteTasks = true, familyMembers, currentUserId }: Props) {
   const { lang } = useParams<{ lang: string }>();
   const t = useDict(lang).tasks;
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -205,6 +208,8 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
           spaces={spaces}
           token={token}
           defaultSpaceId={selectedSpace ?? undefined}
+          familyMembers={familyMembers}
+          currentUserId={currentUserId}
           onCreated={(task) => setTasks((prev) => [...prev, task])}
           onClose={() => setShowCreate(false)}
         />

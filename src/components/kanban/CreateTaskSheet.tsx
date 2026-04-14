@@ -3,18 +3,23 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { Space, Task, TaskStatus, TaskPriority } from "@/lib/tasks";
+import type { FamilyMember } from "@/lib/family";
 import { apiFetch } from "@/lib/api";
 import { useDict } from "@/lib/useDict";
+
+const ROLE_EMOJI: Record<string, string> = { owner: "👤", member: "👤", child: "🧒" };
 
 type Props = {
   spaces: Space[];
   token: string;
   defaultSpaceId?: number;
+  familyMembers?: FamilyMember[];
+  currentUserId?: number;
   onCreated: (task: Task) => void;
   onClose: () => void;
 };
 
-export default function CreateTaskSheet({ spaces, token, defaultSpaceId, onCreated, onClose }: Props) {
+export default function CreateTaskSheet({ spaces, token, defaultSpaceId, familyMembers, currentUserId, onCreated, onClose }: Props) {
   const { lang } = useParams<{ lang: string }>();
   const dict = useDict(lang);
   const t = dict.tasks;
@@ -29,6 +34,7 @@ export default function CreateTaskSheet({ spaces, token, defaultSpaceId, onCreat
     setError(null);
     setLoading(true);
     const fd = new FormData(e.currentTarget);
+    const assigneeRaw = fd.get("assignee_id") as string;
     const body = {
       title: fd.get("title") as string,
       description: (fd.get("description") as string) || null,
@@ -37,6 +43,7 @@ export default function CreateTaskSheet({ spaces, token, defaultSpaceId, onCreat
       status: "backlog" as TaskStatus,
       points: Number(fd.get("points") || 0),
       due_date: (fd.get("due_date") as string) || null,
+      ...(assigneeRaw ? { assignee_id: Number(assigneeRaw) } : {}),
     };
     try {
       const task = await apiFetch<Task>("/tasks", { method: "POST", token, body: JSON.stringify(body) });
@@ -104,6 +111,19 @@ export default function CreateTaskSheet({ spaces, token, defaultSpaceId, onCreat
                     className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800" />
                 </div>
               </div>
+              {familyMembers && familyMembers.length > 1 && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-stone-500">Assign to</label>
+                  <select name="assignee_id" defaultValue={currentUserId ?? ""}
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800">
+                    {familyMembers.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {ROLE_EMOJI[m.role] ?? "👤"} {m.name}{m.id === currentUserId ? " (you)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <button type="submit" disabled={loading}
                 className="w-full rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:opacity-50">
                 {loading ? t.creating : t.createTask}
