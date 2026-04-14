@@ -41,6 +41,20 @@ export async function createSchedule(
   });
 }
 
+export type ScheduleUpdate = Partial<Omit<ScheduleCreate, "user_id">>;
+
+export async function updateSchedule(
+  token: string,
+  scheduleId: number,
+  body: ScheduleUpdate
+): Promise<ScheduleEntry> {
+  return apiFetch<ScheduleEntry>(`/schedule/${scheduleId}`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(body),
+  });
+}
+
 export async function deleteSchedule(
   token: string,
   scheduleId: number

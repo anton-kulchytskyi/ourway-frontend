@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { createSchedule, deleteSchedule, ScheduleEntry, ScheduleCreate } from "@/lib/schedule";
+import { createSchedule, updateSchedule, deleteSchedule, ScheduleEntry, ScheduleCreate } from "@/lib/schedule";
 import type { FamilyMember } from "@/lib/family";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -92,10 +92,12 @@ function WeekdayBadges({
 function EntryCard({
   entry,
   days,
+  onEdit,
   onDelete,
 }: {
   entry: ScheduleEntry;
   days: Record<string, string>;
+  onEdit: (entry: ScheduleEntry) => void;
   onDelete: (id: number) => void;
 }) {
   return (
@@ -119,47 +121,62 @@ function EntryCard({
             </p>
           )}
         </div>
-        <button
-          onClick={() => onDelete(entry.id)}
-          className="shrink-0 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-400 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-500 dark:hover:border-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-        >
-          ×
-        </button>
+        <div className="flex shrink-0 gap-1">
+          <button
+            onClick={() => onEdit(entry)}
+            className="rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-400 transition-colors hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-500 dark:hover:border-amber-700 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+          >
+            ✎
+          </button>
+          <button
+            onClick={() => onDelete(entry.id)}
+            className="rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-400 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-500 dark:hover:border-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+          >
+            ×
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// ── Add form modal ────────────────────────────────────────────────────────────
+// ── Schedule form modal (create + edit) ──────────────────────────────────────
 
-type AddFormProps = {
+type ScheduleFormModalProps = {
+  initial?: ScheduleEntry;           // present → edit mode
   children: FamilyMember[];
   isOwner: boolean;
   dict: ScheduleDict;
   commonDict: CommonDict;
   onClose: () => void;
   onCreated: (entry: ScheduleEntry, forUserId: number) => void;
+  onUpdated: (entry: ScheduleEntry) => void;
   token: string;
   myUserId: number;
 };
 
-function AddForm({
+function ScheduleFormModal({
+  initial,
   children,
   isOwner,
   dict,
   commonDict,
   onClose,
   onCreated,
+  onUpdated,
   token,
   myUserId,
-}: AddFormProps) {
-  const [title, setTitle] = useState("");
-  const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
-  const [timeStart, setTimeStart] = useState("08:00");
-  const [timeEnd, setTimeEnd] = useState("09:00");
-  const [validFrom, setValidFrom] = useState("");
-  const [validUntil, setValidUntil] = useState("");
-  const [targetUserId, setTargetUserId] = useState<number>(myUserId);
+}: ScheduleFormModalProps) {
+  const isEdit = !!initial;
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [selectedDays, setSelectedDays] = useState<Set<number>>(
+    new Set(initial?.weekdays ?? [])
+  );
+  const [timeStart, setTimeStart] = useState(fmtTime(initial?.time_start ?? "08:00"));
+  const [timeEnd, setTimeEnd] = useState(fmtTime(initial?.time_end ?? "09:00"));
+  const [validFrom, setValidFrom] = useState(initial?.valid_from ?? "");
+  const [validUntil, setValidUntil] = useState(initial?.valid_until ?? "");
+  const [targetUserId, setTargetUserId] = useState<number>(initial?.user_id ?? myUserId);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -179,21 +196,32 @@ function AddForm({
       setError("Select at least one day");
       return;
     }
-
     setSaving(true);
     setError("");
     try {
-      const body: ScheduleCreate = {
-        title: title.trim(),
-        weekdays: Array.from(selectedDays).sort(),
-        time_start: timeStart,
-        time_end: timeEnd,
-        valid_from: validFrom || null,
-        valid_until: validUntil || null,
-        user_id: targetUserId !== myUserId ? targetUserId : null,
-      };
-      const created = await createSchedule(token, body);
-      onCreated(created, targetUserId);
+      if (isEdit && initial) {
+        const updated = await updateSchedule(token, initial.id, {
+          title: title.trim(),
+          weekdays: Array.from(selectedDays).sort(),
+          time_start: timeStart,
+          time_end: timeEnd,
+          valid_from: validFrom || null,
+          valid_until: validUntil || null,
+        });
+        onUpdated(updated);
+      } else {
+        const body: ScheduleCreate = {
+          title: title.trim(),
+          weekdays: Array.from(selectedDays).sort(),
+          time_start: timeStart,
+          time_end: timeEnd,
+          valid_from: validFrom || null,
+          valid_until: validUntil || null,
+          user_id: targetUserId !== myUserId ? targetUserId : null,
+        };
+        const created = await createSchedule(token, body);
+        onCreated(created, targetUserId);
+      }
     } catch {
       setError("Failed to save. Try again.");
     } finally {
@@ -205,11 +233,10 @@ function AddForm({
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-black/40 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl">
         <h2 className="text-base font-bold text-stone-900 dark:text-stone-50 mb-4">
-          {dict.addEntry}
+          {isEdit ? title : dict.addEntry}
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          {/* Title */}
           <div>
             <label className="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
               {dict.entryTitle}
@@ -224,7 +251,6 @@ function AddForm({
             />
           </div>
 
-          {/* Weekdays */}
           <div>
             <label className="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
               {dict.weekdays}
@@ -247,7 +273,6 @@ function AddForm({
             </div>
           </div>
 
-          {/* Time range */}
           <div className="flex gap-3">
             <div className="flex-1">
               <label className="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
@@ -275,7 +300,6 @@ function AddForm({
             </div>
           </div>
 
-          {/* Date range (optional) */}
           <div className="flex gap-3">
             <div className="flex-1">
               <label className="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
@@ -283,7 +307,7 @@ function AddForm({
               </label>
               <input
                 type="date"
-                value={validFrom}
+                value={validFrom ?? ""}
                 onChange={(e) => setValidFrom(e.target.value)}
                 className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-800 focus:border-amber-400 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100"
               />
@@ -294,15 +318,15 @@ function AddForm({
               </label>
               <input
                 type="date"
-                value={validUntil}
+                value={validUntil ?? ""}
                 onChange={(e) => setValidUntil(e.target.value)}
                 className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-800 focus:border-amber-400 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100"
               />
             </div>
           </div>
 
-          {/* For whom (owner only, has children) */}
-          {isOwner && children.length > 0 && (
+          {/* For whom — only in create mode */}
+          {!isEdit && isOwner && children.length > 0 && (
             <div>
               <label className="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
                 {dict.forWhom}
@@ -314,17 +338,13 @@ function AddForm({
               >
                 <option value={myUserId}>{dict.me}</option>
                 {children.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
           )}
 
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
+          {error && <p className="text-xs text-red-500">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <button
@@ -339,7 +359,7 @@ function AddForm({
               disabled={saving}
               className="flex-1 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white hover:bg-amber-400 disabled:opacity-60"
             >
-              {saving ? dict.creating : dict.createEntry}
+              {saving ? dict.creating : isEdit ? "Save" : dict.createEntry}
             </button>
           </div>
         </form>
@@ -399,12 +419,14 @@ function PersonSection({
   entries,
   days,
   dict,
+  onEdit,
   onDelete,
 }: {
   label: string;
   entries: ScheduleEntry[];
   days: Record<string, string>;
   dict: ScheduleDict;
+  onEdit: (entry: ScheduleEntry) => void;
   onDelete: (id: number) => void;
 }) {
   return (
@@ -418,7 +440,7 @@ function PersonSection({
         <ul className="space-y-2">
           {entries.map((e) => (
             <li key={e.id}>
-              <EntryCard entry={e} days={days} onDelete={onDelete} />
+              <EntryCard entry={e} days={days} onEdit={onEdit} onDelete={onDelete} />
             </li>
           ))}
         </ul>
@@ -442,6 +464,7 @@ export default function ScheduleClient({
   const [mySchedules, setMySchedules] = useState<ScheduleEntry[]>(initialMySchedules);
   const [childSchedules, setChildSchedules] = useState<ChildSchedules[]>(initialChildSchedules);
   const [showAdd, setShowAdd] = useState(false);
+  const [editTarget, setEditTarget] = useState<ScheduleEntry | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string; userId: number } | null>(null);
 
   const handleCreated = useCallback((entry: ScheduleEntry, forUserId: number) => {
@@ -457,6 +480,22 @@ export default function ScheduleClient({
       );
     }
     setShowAdd(false);
+  }, [myUserId]);
+
+  const handleEditSaved = useCallback((updated: ScheduleEntry) => {
+    const userId = updated.user_id;
+    if (userId === myUserId) {
+      setMySchedules((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+    } else {
+      setChildSchedules((prev) =>
+        prev.map((cs) =>
+          cs.child.id === userId
+            ? { ...cs, entries: cs.entries.map((e) => (e.id === updated.id ? updated : e)) }
+            : cs
+        )
+      );
+    }
+    setEditTarget(null);
   }, [myUserId]);
 
   const handleDeleteRequest = useCallback((id: number, title: string, userId: number) => {
@@ -514,6 +553,7 @@ export default function ScheduleClient({
             entries={mySchedules}
             days={dict.days}
             dict={dict}
+            onEdit={setEditTarget}
             onDelete={(id) => handleDeleteRequest(id, mySchedules.find((e) => e.id === id)?.title ?? "", myUserId)}
           />
           {childSchedules.map(({ child, entries }) => (
@@ -523,6 +563,7 @@ export default function ScheduleClient({
               entries={entries}
               days={dict.days}
               dict={dict}
+              onEdit={setEditTarget}
               onDelete={(id) => handleDeleteRequest(id, entries.find((e) => e.id === id)?.title ?? "", child.id)}
             />
           ))}
@@ -534,6 +575,7 @@ export default function ScheduleClient({
               <EntryCard
                 entry={e}
                 days={dict.days}
+                onEdit={setEditTarget}
                 onDelete={(id) => handleDeleteRequest(id, e.title, myUserId)}
               />
             </li>
@@ -543,13 +585,30 @@ export default function ScheduleClient({
 
       {/* Add modal */}
       {showAdd && (
-        <AddForm
+        <ScheduleFormModal
           children={children}
           isOwner={isOwner}
           dict={dict}
           commonDict={commonDict}
           onClose={() => setShowAdd(false)}
           onCreated={handleCreated}
+          onUpdated={handleEditSaved}
+          token={token}
+          myUserId={myUserId}
+        />
+      )}
+
+      {/* Edit modal */}
+      {editTarget && (
+        <ScheduleFormModal
+          initial={editTarget}
+          children={children}
+          isOwner={isOwner}
+          dict={dict}
+          commonDict={commonDict}
+          onClose={() => setEditTarget(null)}
+          onCreated={handleCreated}
+          onUpdated={handleEditSaved}
           token={token}
           myUserId={myUserId}
         />
