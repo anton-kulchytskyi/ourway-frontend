@@ -23,7 +23,7 @@ const TIMEZONES = [
   {
     group: "Europe (UTC+2/+3)",
     options: [
-      "Europe/Kyiv", "Europe/Bucharest", "Europe/Helsinki", "Europe/Athens",
+      "Europe/Kyiv", "Europe/Kiev", "Europe/Bucharest", "Europe/Helsinki", "Europe/Athens",
       "Europe/Riga", "Europe/Tallinn", "Europe/Vilnius",
     ],
   },
@@ -152,10 +152,14 @@ export default function SettingsClient({ user, lang, t, authToken, logoutAction,
             disabled={tzStatus === "saving"}
             className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-100 disabled:opacity-50"
           >
+            {/* If current value isn't in the list (e.g. old alias), show it explicitly */}
+            {!TIMEZONES.flatMap((g) => g.options).includes(timezone) && (
+              <option value={timezone}>{timezone.replace(/_/g, " ")}</option>
+            )}
             {TIMEZONES.map(({ group, options }) => (
               <optgroup key={group} label={group}>
                 {options.map((tz) => (
-                  <option key={tz} value={tz}>{tz.replace("_", " ")}</option>
+                  <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>
                 ))}
               </optgroup>
             ))}
