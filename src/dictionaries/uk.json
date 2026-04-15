@@ -5,6 +5,7 @@
     "spaces": "Простори",
     "family": "Сім'я",
     "schedule": "Розклад",
+    "events": "Події",
     "settings": "Налаштування"
   },
   "today": {
@@ -165,6 +166,27 @@
       "6": "Сб",
       "7": "Нд"
     }
+  },
+  "events": {
+    "title": "Події",
+    "addEvent": "Додати подію",
+    "noEvents": "Майбутніх подій немає.",
+    "eventTitle": "Назва",
+    "eventTitlePlaceholder": "Лікар, День народження...",
+    "date": "Дата (необов'язково)",
+    "timeStart": "Початок (необов'язково)",
+    "timeEnd": "Кінець (необов'язково)",
+    "participants": "Учасники",
+    "createEvent": "Створити",
+    "creating": "Створення...",
+    "save": "Зберегти",
+    "saving": "Збереження...",
+    "deleteConfirmTitle": "Видалити подію?",
+    "deleteConfirmSuffix": "буде видалено назавжди.",
+    "past": "Минулі",
+    "upcoming": "Майбутні",
+    "noDate": "Гнучка дата",
+    "you": "Я"
   },
   "common": {
     "cancel": "Скасувати",

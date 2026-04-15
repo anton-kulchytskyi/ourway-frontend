@@ -5,6 +5,7 @@
     "spaces": "Spaces",
     "family": "Family",
     "schedule": "Schedule",
+    "events": "Events",
     "settings": "Settings"
   },
   "today": {
@@ -165,6 +166,27 @@
       "6": "Sat",
       "7": "Sun"
     }
+  },
+  "events": {
+    "title": "Events",
+    "addEvent": "Add Event",
+    "noEvents": "No upcoming events.",
+    "eventTitle": "Title",
+    "eventTitlePlaceholder": "Doctor appointment, Birthday party...",
+    "date": "Date (optional)",
+    "timeStart": "Start time (optional)",
+    "timeEnd": "End time (optional)",
+    "participants": "Participants",
+    "createEvent": "Create",
+    "creating": "Creating...",
+    "save": "Save",
+    "saving": "Saving...",
+    "deleteConfirmTitle": "Delete event?",
+    "deleteConfirmSuffix": "will be permanently deleted.",
+    "past": "Past",
+    "upcoming": "Upcoming",
+    "noDate": "Flexible date",
+    "you": "Me"
   },
   "common": {
     "cancel": "Cancel",
