@@ -25,6 +25,7 @@ export default function CreateTaskSheet({ spaces, token, defaultSpaceId, familyM
   const t = dict.tasks;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [trackProgress, setTrackProgress] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { titleRef.current?.focus(); }, []);
@@ -44,6 +45,7 @@ export default function CreateTaskSheet({ spaces, token, defaultSpaceId, familyM
       points: Number(fd.get("points") || 0),
       due_date: (fd.get("due_date") as string) || null,
       ...(assigneeRaw ? { assignee_id: Number(assigneeRaw) } : {}),
+      ...(trackProgress ? { progress_total: Number(fd.get("progress_total") || 0), progress_current: 0 } : {}),
     };
     try {
       const task = await apiFetch<Task>("/tasks", { method: "POST", token, body: JSON.stringify(body) });
@@ -122,6 +124,30 @@ export default function CreateTaskSheet({ spaces, token, defaultSpaceId, familyM
                       </option>
                     ))}
                   </select>
+                </div>
+              )}
+              {/* Track progress toggle */}
+              <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 dark:border-stone-700 dark:bg-stone-800">
+                <label className="text-sm text-stone-600 dark:text-stone-300">{t.trackProgress}</label>
+                <button
+                  type="button"
+                  onClick={() => setTrackProgress((v) => !v)}
+                  className={`relative h-6 w-11 rounded-full transition-colors ${trackProgress ? "bg-amber-500" : "bg-stone-200 dark:bg-stone-600"}`}
+                >
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${trackProgress ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+              {trackProgress && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-stone-500">{t.progressGoal}</label>
+                  <input
+                    name="progress_total"
+                    type="number"
+                    min={1}
+                    required
+                    placeholder="50"
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-700 dark:bg-stone-800"
+                  />
                 </div>
               )}
               <button type="submit" disabled={loading}

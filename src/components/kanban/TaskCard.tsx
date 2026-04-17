@@ -65,6 +65,22 @@ export default function TaskCard({ task, onView }: Props) {
           </span>
         )}
       </div>
+
+      {task.progress_total != null && (
+        <div className="mt-2 space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="h-1.5 flex-1 rounded-full bg-stone-100 dark:bg-stone-700 mr-2 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-amber-400 transition-all"
+                style={{ width: `${Math.min(100, Math.round(((task.progress_current ?? 0) / task.progress_total) * 100))}%` }}
+              />
+            </div>
+            <span className="text-xs text-stone-400 whitespace-nowrap">
+              {task.progress_current ?? 0} / {task.progress_total}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

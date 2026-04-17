@@ -36,6 +36,11 @@
     "timezone": "Часовий пояс",
     "timezoneHint": "Використовується для ранкового briefing і вечірнього ритуалу",
     "timezoneSaved": "Збережено",
+    "notifications": "Час сповіщень",
+    "notificationsHint": "Час у вашому часовому поясі",
+    "morning": "Ранковий briefing",
+    "evening": "Вечірній ритуал",
+    "notificationsSaved": "Збережено",
     "account": "Акаунт",
     "logout": "Вийти",
     "deleteAccount": "Видалити акаунт та всі дані",
@@ -77,7 +82,11 @@
     "deleteConfirm": "буде видалено назавжди.",
     "status": "Статус",
     "deleteTaskTitle": "Видалити задачу?",
-    "noTasks": "Задач немає"
+    "noTasks": "Задач немає",
+    "trackProgress": "Відстежувати прогрес",
+    "progressGoal": "Ціль",
+    "progressCurrent": "Виконано",
+    "progressOf": "з"
   },
   "statuses": {
     "backlog": "Беклог",

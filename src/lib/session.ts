@@ -30,6 +30,8 @@ export type SessionUser = {
   role: "owner" | "member" | "child";
   locale: string;
   timezone: string;
+  morning_brief_time: string;
+  evening_ritual_time: string;
   autonomy_level?: number | null;
 };
 

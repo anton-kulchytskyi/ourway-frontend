@@ -41,7 +41,9 @@ const TIMEZONES = [
 type SettingsDict = {
   title: string; profile: string; name: string; email: string; role: string;
   autonomy: string; language: string; timezone: string; timezoneHint: string;
-  timezoneSaved: string; account: string; logout: string;
+  timezoneSaved: string; notifications: string; notificationsHint: string;
+  morning: string; evening: string; notificationsSaved: string;
+  account: string; logout: string;
   deleteAccount: string; deleteConfirmTitle: string; deleteConfirmOwner: string;
   deleteConfirmMember: string;
   roles: Record<string, string>;
@@ -61,12 +63,33 @@ export default function SettingsClient({ user, lang, t, authToken, logoutAction,
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [timezone, setTimezone] = useState(user.timezone || "UTC");
   const [tzStatus, setTzStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [morningTime, setMorningTime] = useState(user.morning_brief_time || "07:30");
+  const [eveningTime, setEveningTime] = useState(user.evening_ritual_time || "21:00");
+  const [notifStatus, setNotifStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const router = useRouter();
   const pathname = usePathname();
 
   function switchLang(newLang: string) {
     const newPath = pathname.replace(/^\/[a-z]{2}/, `/${newLang}`);
     router.push(newPath);
+  }
+
+  async function handleNotificationTimeChange(field: "morning_brief_time" | "evening_ritual_time", value: string) {
+    if (field === "morning_brief_time") setMorningTime(value);
+    else setEveningTime(value);
+    setNotifStatus("saving");
+    try {
+      await apiFetch("/users/me", {
+        method: "PATCH",
+        token: authToken,
+        body: JSON.stringify({ [field]: value }),
+      });
+      setNotifStatus("saved");
+      setTimeout(() => setNotifStatus("idle"), 2000);
+    } catch {
+      setNotifStatus("error");
+      setTimeout(() => setNotifStatus("idle"), 3000);
+    }
   }
 
   async function handleTimezoneChange(tz: string) {
@@ -172,6 +195,42 @@ export default function SettingsClient({ user, lang, t, authToken, logoutAction,
             {tzStatus === "saved" ? `✓ ${t.timezoneSaved}` :
              tzStatus === "error" ? "✗ Error saving" :
              t.timezoneHint}
+          </p>
+        </div>
+      </section>
+
+      {/* Notification times */}
+      <section className="rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800 overflow-hidden">
+        <div className="px-4 py-3 border-b border-stone-100 dark:border-stone-700">
+          <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">{t.notifications}</p>
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <label className="text-sm text-stone-500 shrink-0">{t.morning}</label>
+            <input
+              type="time"
+              value={morningTime}
+              onChange={(e) => handleNotificationTimeChange("morning_brief_time", e.target.value)}
+              className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-100"
+            />
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <label className="text-sm text-stone-500 shrink-0">{t.evening}</label>
+            <input
+              type="time"
+              value={eveningTime}
+              onChange={(e) => handleNotificationTimeChange("evening_ritual_time", e.target.value)}
+              className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-100"
+            />
+          </div>
+          <p className={`text-xs transition-colors ${
+            notifStatus === "saved" ? "text-green-500" :
+            notifStatus === "error" ? "text-red-500" :
+            "text-stone-400"
+          }`}>
+            {notifStatus === "saved" ? `✓ ${t.notificationsSaved}` :
+             notifStatus === "error" ? "✗ Error saving" :
+             t.notificationsHint}
           </p>
         </div>
       </section>

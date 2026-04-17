@@ -16,6 +16,8 @@ export type Task = {
   space_id: number;
   creator_id: number;
   assignee_id: number | null;
+  progress_current: number | null;
+  progress_total: number | null;
 };
 
 export const STATUSES: TaskStatus[] = ["backlog", "todo", "in_progress", "blocked", "done"];
@@ -48,7 +50,7 @@ export async function updateTaskStatus(token: string, taskId: number, status: Ta
 export async function updateTask(
   token: string,
   taskId: number,
-  data: Partial<Pick<Task, "title" | "description" | "status" | "priority" | "points" | "due_date">>
+  data: Partial<Pick<Task, "title" | "description" | "status" | "priority" | "points" | "due_date" | "progress_current" | "progress_total">>
 ): Promise<Task> {
   return apiFetch<Task>(`/tasks/${taskId}`, {
     method: "PATCH",

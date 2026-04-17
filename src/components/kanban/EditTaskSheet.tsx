@@ -25,6 +25,8 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [progressCurrent, setProgressCurrent] = useState<number>(task.progress_current ?? 0);
+  const [progressTotal, setProgressTotal] = useState<number | null>(task.progress_total ?? null);
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
       priority: fd.get("priority") as TaskPriority,
       points: Number(fd.get("points") || 0),
       due_date: (fd.get("due_date") as string) || null,
+      ...(progressTotal != null ? { progress_current: progressCurrent, progress_total: progressTotal } : {}),
     };
 
     try {
@@ -172,6 +175,64 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
                 />
               </div>
             </div>
+
+            {/* Progress tracking */}
+            {progressTotal == null ? (
+              <button
+                type="button"
+                onClick={() => { setProgressTotal(1); setProgressCurrent(0); }}
+                className="w-full rounded-xl border border-dashed border-stone-300 py-2.5 text-sm text-stone-400 hover:border-amber-400 hover:text-amber-500 dark:border-stone-600 transition"
+              >
+                + {t.trackProgress}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-stone-500">{t.trackProgress}</span>
+                  <button
+                    type="button"
+                    onClick={() => { setProgressTotal(null); setProgressCurrent(0); }}
+                    className="text-xs text-stone-400 hover:text-red-400"
+                  >
+                    ✕ Remove
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-stone-500">{t.progressCurrent}</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={progressTotal}
+                      value={progressCurrent}
+                      onChange={(e) => setProgressCurrent(Number(e.target.value))}
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-stone-500">{t.progressGoal}</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={progressTotal}
+                      onChange={(e) => setProgressTotal(Number(e.target.value))}
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 flex-1 rounded-full bg-stone-100 dark:bg-stone-700 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-amber-400 transition-all"
+                      style={{ width: `${Math.min(100, Math.round((progressCurrent / progressTotal) * 100))}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-stone-400 whitespace-nowrap">
+                    {progressCurrent} {t.progressOf} {progressTotal}
+                  </span>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-3">
               {canDelete && (
