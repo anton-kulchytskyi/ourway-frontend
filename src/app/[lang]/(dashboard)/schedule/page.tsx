@@ -21,9 +21,9 @@ export default async function SchedulePage({
 
   const dict = await getDictionary(locale);
 
-  const isOwner = user.role === "owner";
+  const isOwner = user.role === "owner" || user.role === "member";
 
-  // Fetch own schedules + children's schedules (owner only)
+  // Fetch own schedules + children's schedules (owner and member)
   const [mySchedules, children] = await Promise.all([
     fetchSchedules(token).catch(() => []),
     isOwner ? fetchFamily(token).catch(() => []) : Promise.resolve([]),
