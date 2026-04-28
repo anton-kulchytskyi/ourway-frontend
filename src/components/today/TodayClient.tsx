@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { updateTaskStatus } from "@/lib/tasks";
+import { updateTaskStatus, requestTaskDone } from "@/lib/tasks";
 import { confirmDay, DayView, FamilyMemberDay, DayPlan } from "@/lib/today";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -17,6 +17,8 @@ type TodayDict = {
   nothingPlanned: string;
   me: string;
   markDone: string;
+  requestDone: string;
+  doneRequested: string;
   loadError: string;
 };
 
@@ -27,6 +29,7 @@ type Props = {
   token: string;
   myUserId: number;
   myName: string;
+  needsApproval?: boolean;
   dict: TodayDict;
 };
 
@@ -85,9 +88,11 @@ type DayProps = {
   dict: TodayDict;
   onTaskDone: (taskId: number) => void;
   tasksDone: Set<number>;
+  needsApproval?: boolean;
+  tasksRequested?: Set<number>;
 };
 
-function DayViewRenderer({ day, dict, onTaskDone, tasksDone }: DayProps) {
+function DayViewRenderer({ day, dict, onTaskDone, tasksDone, needsApproval = false, tasksRequested }: DayProps) {
   const { schedule_items, events, tasks } = day;
   const isEmpty = schedule_items.length === 0 && events.length === 0 && tasks.length === 0;
 
@@ -170,13 +175,16 @@ function DayViewRenderer({ day, dict, onTaskDone, tasksDone }: DayProps) {
                       +{task.points}
                     </span>
                   )}
-                  {!done && (
+                  {!done && !tasksRequested?.has(task.id) && (
                     <button
                       onClick={() => onTaskDone(task.id)}
                       className="shrink-0 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-500 transition-colors hover:border-green-300 hover:bg-green-50 hover:text-green-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-400 dark:hover:border-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400"
                     >
-                      {dict.markDone}
+                      {needsApproval ? dict.requestDone : dict.markDone}
                     </button>
+                  )}
+                  {tasksRequested?.has(task.id) && (
+                    <span className="shrink-0 text-xs text-amber-500 font-medium">{dict.doneRequested}</span>
                   )}
                   {done && (
                     <span className="shrink-0 text-green-500">✓</span>
@@ -200,6 +208,7 @@ export default function TodayClient({
   token,
   myUserId,
   myName,
+  needsApproval = false,
   dict,
 }: Props) {
   const [selectedUserId, setSelectedUserId] = useState<number>(myUserId);
@@ -210,6 +219,7 @@ export default function TodayClient({
     return init;
   });
   const [tasksDone, setTasksDone] = useState<Set<number>>(new Set());
+  const [tasksRequested, setTasksRequested] = useState<Set<number>>(new Set());
   const [confirming, setConfirming] = useState(false);
 
   // Current day being viewed
@@ -233,6 +243,19 @@ export default function TodayClient({
   }, [token, date, myUserId]);
 
   const handleTaskDone = useCallback(async (taskId: number) => {
+    if (needsApproval) {
+      setTasksRequested((prev) => new Set(prev).add(taskId));
+      try {
+        await requestTaskDone(token, taskId);
+      } catch {
+        setTasksRequested((prev) => {
+          const next = new Set(prev);
+          next.delete(taskId);
+          return next;
+        });
+      }
+      return;
+    }
     setTasksDone((prev) => new Set(prev).add(taskId));
     try {
       await updateTaskStatus(token, taskId, "done");
@@ -243,7 +266,7 @@ export default function TodayClient({
         return next;
       });
     }
-  }, [token]);
+  }, [token, needsApproval]);
 
   const isOwnDay = selectedUserId === myUserId;
   const canConfirm =
@@ -308,6 +331,8 @@ export default function TodayClient({
           dict={dict}
           onTaskDone={handleTaskDone}
           tasksDone={tasksDone}
+          needsApproval={needsApproval && selectedUserId === myUserId}
+          tasksRequested={tasksRequested}
         />
       )}
 

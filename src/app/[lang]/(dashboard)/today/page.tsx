@@ -31,6 +31,8 @@ export default async function TodayPage({
       : Promise.resolve(null),
   ]);
 
+  const needsApproval = user.role === "child" && (!user.autonomy_level || user.autonomy_level < 3);
+
   return (
     <div className="flex flex-col gap-4">
       <TodayClient
@@ -40,6 +42,7 @@ export default async function TodayPage({
         token={token}
         myUserId={user.id}
         myName={user.name}
+        needsApproval={needsApproval}
         dict={dict.today}
       />
     </div>

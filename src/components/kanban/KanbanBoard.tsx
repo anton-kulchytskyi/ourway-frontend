@@ -15,7 +15,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import type { Task, TaskStatus, Space } from "@/lib/tasks";
-import { STATUSES, updateTaskStatus, fetchTasks } from "@/lib/tasks";
+import { STATUSES, updateTaskStatus, fetchTasks, requestTaskDone } from "@/lib/tasks";
 import type { FamilyMember } from "@/lib/family";
 import { useDict } from "@/lib/useDict";
 import KanbanColumn from "./KanbanColumn";
@@ -31,11 +31,12 @@ type Props = {
   token: string;
   defaultSpaceId?: number | null;
   canDeleteTasks?: boolean;
+  needsApproval?: boolean;
   familyMembers?: FamilyMember[];
   currentUserId?: number;
 };
 
-export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId, canDeleteTasks = true, familyMembers, currentUserId }: Props) {
+export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceId, canDeleteTasks = true, needsApproval = false, familyMembers, currentUserId }: Props) {
   const { lang } = useParams<{ lang: string }>();
   const t = useDict(lang).tasks;
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -48,6 +49,13 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const isDragging = useRef(false);
+  const [requestedMsg, setRequestedMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!requestedMsg) return;
+    const timer = setTimeout(() => setRequestedMsg(null), 4000);
+    return () => clearTimeout(timer);
+  }, [requestedMsg]);
 
   const reload = useCallback(async () => {
     if (isDragging.current) return;
@@ -108,15 +116,30 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
     const taskId = active.id as number;
     const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
+
+    if (needsApproval && task.status === "done") {
+      try {
+        await requestTaskDone(token, taskId);
+        setRequestedMsg(t.doneRequested);
+      } catch {}
+      reload();
+      return;
+    }
+
     try {
       await updateTaskStatus(token, taskId, task.status);
     } catch {
       reload();
     }
-  }, [tasks, token, reload]);
+  }, [tasks, token, reload, needsApproval, t.doneRequested]);
 
   return (
     <div className="flex flex-col gap-4">
+      {requestedMsg && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 text-sm text-amber-700 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-400">
+          {requestedMsg}
+        </div>
+      )}
       {/* Space selector + Create button */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex gap-2 flex-wrap">
@@ -220,12 +243,17 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
         <TaskViewSheet
           task={viewingTask}
           token={token}
+          needsApproval={needsApproval}
           onUpdated={(updated) => {
             setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             setViewingTask(updated);
           }}
           onEdit={() => setEditingTask(viewingTask)}
           onClose={() => setViewingTask(null)}
+          onDoneRequested={() => {
+            setViewingTask(null);
+            setRequestedMsg(t.doneRequested);
+          }}
         />
       )}
 
@@ -235,6 +263,13 @@ export default function KanbanBoard({ initialTasks, spaces, token, defaultSpaceI
           task={editingTask}
           token={token}
           canDelete={canDeleteTasks}
+          needsApproval={needsApproval}
+          onDoneRequested={() => {
+            setTasks((prev) => prev.map((t) => t.id === editingTask.id ? { ...t } : t));
+            setEditingTask(null);
+            setViewingTask(null);
+            setRequestedMsg(t.doneRequested);
+          }}
           onUpdated={(updated) => {
             setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             setViewingTask(null);

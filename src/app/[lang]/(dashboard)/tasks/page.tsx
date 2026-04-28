@@ -31,6 +31,7 @@ export default async function TasksPage({
 
   const defaultSpaceId = space ? Number(space) : (spaces[0]?.id ?? null);
   const canDeleteTasks = !(user.role === "child" && user.autonomy_level && user.autonomy_level <= 2);
+  const needsApproval = user.role === "child" && (!user.autonomy_level || user.autonomy_level < 3);
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -41,6 +42,7 @@ export default async function TasksPage({
         token={token}
         defaultSpaceId={defaultSpaceId}
         canDeleteTasks={canDeleteTasks}
+        needsApproval={needsApproval}
         familyMembers={family}
         currentUserId={user.id}
       />

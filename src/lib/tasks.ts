@@ -62,3 +62,7 @@ export async function updateTask(
 export async function deleteTask(token: string, taskId: number): Promise<void> {
   return apiFetch(`/tasks/${taskId}`, { method: "DELETE", token });
 }
+
+export async function requestTaskDone(token: string, taskId: number): Promise<void> {
+  return apiFetch(`/tasks/${taskId}/request_done`, { method: "POST", token });
+}

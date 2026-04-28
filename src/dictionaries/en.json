@@ -23,6 +23,8 @@
     "nothingPlanned": "Nothing planned for today",
     "me": "Me",
     "markDone": "Done",
+    "requestDone": "✋ Request",
+    "doneRequested": "✋ Sent!",
     "loadError": "Could not load today's plan."
   },
   "settings": {
@@ -86,7 +88,10 @@
     "trackProgress": "Track progress",
     "progressGoal": "Goal",
     "progressCurrent": "Done so far",
-    "progressOf": "of"
+    "progressOf": "of",
+    "requestDone": "✋ Request completion",
+    "requesting": "Sending...",
+    "doneRequested": "✋ Done request sent to parent!"
   },
   "statuses": {
     "backlog": "Backlog",

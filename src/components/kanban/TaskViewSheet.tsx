@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import type { Task, TaskStatus } from "@/lib/tasks";
-import { STATUSES, updateTaskStatus } from "@/lib/tasks";
+import { STATUSES, updateTaskStatus, requestTaskDone } from "@/lib/tasks";
 import { useDict } from "@/lib/useDict";
 
 const PRIORITY_COLORS = {
@@ -43,12 +43,14 @@ const STATUS_ICONS: Record<TaskStatus, React.ReactNode> = {
 type Props = {
   task: Task;
   token: string;
+  needsApproval?: boolean;
   onUpdated: (task: Task) => void;
   onEdit: () => void;
   onClose: () => void;
+  onDoneRequested?: () => void;
 };
 
-export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose }: Props) {
+export default function TaskViewSheet({ task, token, needsApproval = false, onUpdated, onEdit, onClose, onDoneRequested }: Props) {
   const { lang } = useParams<{ lang: string }>();
   const dict = useDict(lang);
   const t = dict.tasks;
@@ -73,6 +75,19 @@ export default function TaskViewSheet({ task, token, onUpdated, onEdit, onClose 
 
   async function handleStatusChange(status: TaskStatus) {
     if (status === currentStatus || changing) return;
+
+    if (needsApproval && status === "done") {
+      setChanging(status);
+      try {
+        await requestTaskDone(token, task.id);
+        onDoneRequested?.();
+        onClose();
+      } finally {
+        setChanging(null);
+      }
+      return;
+    }
+
     setChanging(status);
     try {
       const updated = await updateTaskStatus(token, task.id, status);

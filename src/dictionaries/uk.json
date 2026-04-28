@@ -23,6 +23,8 @@
     "nothingPlanned": "На сьогодні нічого не заплановано",
     "me": "Я",
     "markDone": "Виконано",
+    "requestDone": "✋ Запит",
+    "doneRequested": "✋ Надіслано!",
     "loadError": "Не вдалось завантажити план на сьогодні."
   },
   "settings": {
@@ -86,7 +88,10 @@
     "trackProgress": "Відстежувати прогрес",
     "progressGoal": "Ціль",
     "progressCurrent": "Виконано",
-    "progressOf": "з"
+    "progressOf": "з",
+    "requestDone": "✋ Запросити завершення",
+    "requesting": "Відправляю...",
+    "doneRequested": "✋ Запит на завершення надіслано батькам!"
   },
   "statuses": {
     "backlog": "Беклог",

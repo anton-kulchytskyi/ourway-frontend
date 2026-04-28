@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/tasks";
-import { STATUSES, updateTask, deleteTask } from "@/lib/tasks";
+import { STATUSES, updateTask, deleteTask, requestTaskDone } from "@/lib/tasks";
 import { useDict } from "@/lib/useDict";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
@@ -11,18 +11,21 @@ type Props = {
   task: Task;
   token: string;
   canDelete?: boolean;
+  needsApproval?: boolean;
   onUpdated: (task: Task) => void;
   onDeleted: (taskId: number) => void;
+  onDoneRequested?: () => void;
   onClose: () => void;
 };
 
-export default function EditTaskSheet({ task, token, canDelete = true, onUpdated, onDeleted, onClose }: Props) {
+export default function EditTaskSheet({ task, token, canDelete = true, needsApproval = false, onUpdated, onDeleted, onDoneRequested, onClose }: Props) {
   const { lang } = useParams<{ lang: string }>();
   const dict = useDict(lang);
   const t = dict.tasks;
   const s = dict.statuses;
 
   const [loading, setLoading] = useState(false);
+  const [requesting, setRequesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [progressCurrent, setProgressCurrent] = useState<number>(task.progress_current ?? 0);
@@ -70,6 +73,21 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
       setError("Failed to delete task");
     }
   }
+
+  async function handleRequestDone() {
+    setRequesting(true);
+    try {
+      await requestTaskDone(token, task.id);
+      onDoneRequested?.();
+      onClose();
+    } catch {
+      setError("Failed to send request. Try again.");
+    } finally {
+      setRequesting(false);
+    }
+  }
+
+  const availableStatuses = needsApproval ? STATUSES.filter((s) => s !== "done") : STATUSES;
 
   const defaultDueDate = task.due_date ? task.due_date.split("T")[0] : "";
 
@@ -129,10 +147,10 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
                 <label className="mb-1 block text-xs font-medium text-stone-500">{t.status}</label>
                 <select
                   name="status"
-                  defaultValue={task.status}
+                  defaultValue={task.status === "done" && needsApproval ? "in_progress" : task.status}
                   className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm outline-none focus:border-amber-400 dark:border-stone-700 dark:bg-stone-800"
                 >
-                  {STATUSES.map((val) => (
+                  {availableStatuses.map((val) => (
                     <option key={val} value={val}>{statusLabels[val]}</option>
                   ))}
                 </select>
@@ -232,6 +250,17 @@ export default function EditTaskSheet({ task, token, canDelete = true, onUpdated
                   </span>
                 </div>
               </div>
+            )}
+
+            {needsApproval && task.status !== "done" && (
+              <button
+                type="button"
+                onClick={handleRequestDone}
+                disabled={requesting}
+                className="w-full rounded-xl bg-green-500 py-3 text-sm font-semibold text-white transition hover:bg-green-400 disabled:opacity-50"
+              >
+                {requesting ? t.requesting : t.requestDone}
+              </button>
             )}
 
             <div className="flex gap-3">
